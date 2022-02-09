@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>aubio</title>
+  <script src="https://unpkg.com/aubiojs"></script>
+  <!-- <script>
+    const audioContext = new (AudioContext || webkitAudioContext)();
+    const scriptProcessor = audioContext.createScriptProcessor(512, 1, 1)
+    scriptProcessor.connect(audioContext.destination);
+    let audioSource
+
+    navigator.mediaDevices.getUserMedia({ audio: true })
+      .then((stream) => Promise.all([aubio(), stream]))
+      .then(([{ Tempo }, stream]) => {
+
+        audioSource = audioContext.createMediaStreamSource(stream)
+        audioSource.connect(scriptProcessor)
+        audioSource.connect(audioContext.destination)
+
+        const tempo = new Tempo(
+          scriptProcessor.bufferSize * 4,
+          scriptProcessor.bufferSize,
+          audioContext.sampleRate
+        );
+
+
+        console.log({ tempo, stream })
+
+        scriptProcessor.addEventListener("audioprocess", function (event) {
+          if (tempo.do(event.inputBuffer.getChannelData(0))) {
+            console.log("confidence", tempo.getConfidence());
+            console.log("bpm", tempo.getBpm());
+          }
+        });
+      });
+  </script> -->
+  <script>
+    let audioSource, audioContext, scriptProcessor;
+    let count = 0;
+    const audio = document.querySelector("audio");
+    const maxFrequency = 2000;
+    const bufferSize = 1 << 12;
+    const size = bufferSize / (1 << 10);
+
+    run()
+
+    function run() {
+      if (audioContext) return;
+
+      audioContext = new (AudioContext || webkitAudioContext)();
+      scriptProcessor = audioContext.createScriptProcessor(bufferSize, 1, 1);
+
+      scriptProcessor.connect(audioContext.destination);
+
+      aubio().then(({ Pitch }) => {
+        const pitchDetector = new Pitch(
+          "default",
+          scriptProcessor.bufferSize,
+          scriptProcessor.bufferSize / 8,
+          audioContext.sampleRate
+        );
+        scriptProcessor.addEventListener("audioprocess", function (event) {
+          navigator.mediaDevices
+            .getUserMedia({ audio: true })
+            .then(function (stream) {
+              audioSource = audioContext.createMediaStreamSource(stream);
+              audioSource.connect(scriptProcessor);
+              audioSource.connect(audioContext.destination);
+
+              scriptProcessor.connect(audioContext.destination)
+              scriptProcessor.addEventListener('audioprocess', function (event) {
+                const frequency = pitchDetector.do(
+                  event.inputBuffer.getChannelData(0)
+                )
+
+                console.log({ frequency })
+              })
+            })
+            .catch(function (error) {
+              alert(error.name + ': ' + error.message)
+            })
+        });
+      });
+    }
+  </script>
+</head>
+
+<body>
+
+</body>
+
+</html>

@@ -162,7 +162,7 @@
 
           passed = false;
           currentUnit = MAQSOUM[index]
-        }, 300)
+        }, 200)
 
         const pitchDetector = new Pitch(
           "default",
@@ -199,6 +199,9 @@
           if (isFrequencyMatched) {
             passed = true;
             paintColor('lightgreen')
+          } else if (currentUnit === null) {
+            passed = true;
+            paintColor('darkgrey')
           } else if (!passed) {
             paintColor('red')
           }

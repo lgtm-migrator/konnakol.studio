@@ -141,8 +141,13 @@
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true })
 
       audioSource = audioContext.createMediaStreamSource(stream);
+
+
       audioSource.connect(scriptProcessor);
-      audioSource.connect(audioContext.destination);
+      // audioSource.connect(audioContext.destination);
+
+      console.log(audioContext)
+
       scriptProcessor.connect(audioContext.destination);
 
       const $canvas = document.querySelector("canvas");

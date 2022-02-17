@@ -52,16 +52,8 @@
 
 <body>
   <div>
-    <h1>Play F#3 every second</h1>
+    <h1>Play Maqsoum</h1>
     <div id="track">
-      <div class="unit">F#3</div>
-      <div class="unit">F#3</div>
-      <div class="unit">F#3</div>
-      <div class="unit">F#3</div>
-      <div class="unit">F#3</div>
-      <div class="unit">F#3</div>
-      <div class="unit">F#3</div>
-      <div class="unit">F#3</div>
     </div>
   </div>
   <canvas></canvas>
@@ -75,15 +67,69 @@
   <script>
     let audioSource, audioContext, scriptProcessor;
     let count = 0;
+    let index = 0;
+    let passed = false;
+    let color = 'darkgrey'
+    let currentUnit = null
     // const audio = document.querySelector("audio");
     const maxFrequency = 2000;
     const bufferSize = 1 << 12;
     const size = bufferSize / (1 << 10);
     // audio.addEventListener("play", run);
 
-    const Fadiez3 = (freq) => freq < 190 && freq > 174.1
+    const F_SHARP3 = {
+      symbol: "F#3",
+      range: {
+        from: 174,
+        to: 190
+      }
+    };
+
+    const DING = {
+      symbol: "B",
+      range: {
+        from: 120,
+        to: 126
+      }
+    };
+
+    const MAQSOUM = [
+      DING,
+      F_SHARP3,
+      null,
+      null,
+      F_SHARP3,
+      DING,
+      null,
+      null,
+      F_SHARP3,
+      null,
+      null
+    ]
 
     run()
+
+    const track = document.querySelector('#track')
+    MAQSOUM.forEach((unit) => {
+      track.insertAdjacentHTML('beforeend', `<div class="unit">${unit?.symbol ?? '.'}</div>`)
+    })
+    const units = document.querySelectorAll('#track .unit');
+
+    function paintColor(color) {
+      if (index > 0) {
+        units.item(index - 1).style.textDecoration = 'none'
+        units.item(index - 1).style.color = 'lightgrey'
+      }
+
+      if (index === 0) {
+        units.item(MAQSOUM.length - 1).style.textDecoration = 'none'
+        units.item(MAQSOUM.length - 1).style.color = 'lightgrey'
+      }
+
+      units.item(index).style.textDecoration = 'underline'
+      units.item(index).style.color = color
+    }
+
 
     async function run() {
       // if (audioContext) return;
@@ -105,28 +151,18 @@
       $canvas.height = document.body.clientHeight;
 
       aubio().then(({ Pitch }) => {
-        const units = document.querySelectorAll('#track .unit');
-        let index = 0;
+        currentUnit = MAQSOUM[index]
+
         setInterval(() => {
-          if (index > 0) {
-            units.item(index - 1).style.textDecoration = 'none'
-            units.item(index - 1).style.color = 'lightgrey'
+          if (index >= MAQSOUM.length - 1) {
+            index = 0
+          } else {
+            index++
           }
 
-          if (index === 0) {
-            units.item(7).style.textDecoration = 'none'
-            units.item(7).style.color = 'lightgrey'
-          }
-
-          units.item(index).style.textDecoration = 'underline'
-          units.item(index).style.color = 'darkgrey'
-
-          if (index >= 7) {
-            return index = 0;
-          }
-
-          index++;
-        }, 1000)
+          passed = false;
+          currentUnit = MAQSOUM[index]
+        }, 300)
 
         const pitchDetector = new Pitch(
           "default",
@@ -153,16 +189,19 @@
             canvasContext.stroke();
           }
 
-          if (index > 0) {
-            if (Fadiez3(frequency)) {
-              console.log('F#3')
-              units.item(index - 1).style.color = 'lightgreen'
-            } else {
-              console.log('NOT F#3')
-              units.item(index - 1).style.color = 'red'
-            }
-          }
+          const isFrequencyMatched = (
+            frequency > currentUnit?.range?.from &&
+            frequency < currentUnit?.range?.to
+          )
 
+          console.log(isFrequencyMatched)
+
+          if (isFrequencyMatched) {
+            passed = true;
+            paintColor('lightgreen')
+          } else if (!passed) {
+            paintColor('red')
+          }
 
           count += 1;
         });

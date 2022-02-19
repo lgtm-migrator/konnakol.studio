@@ -21,7 +21,7 @@
 
     canvas {
       position: absolute;
-      top: 0;
+      bottom: 0;
     }
 
     audio {
@@ -52,7 +52,8 @@
 
 <body>
   <div>
-    <h1>Play Maqsoum</h1>
+    <h1>Play Maqsoum <button id="tempo">Set tempo</button></h1>
+
     <div id="track">
     </div>
   </div>
@@ -71,6 +72,8 @@
     let passed = false;
     let color = 'darkgrey'
     let currentUnit = null
+    let interval = null
+    let tempo = 200
     // const audio = document.querySelector("audio");
     const maxFrequency = 2000;
     const bufferSize = 1 << 12;
@@ -115,6 +118,19 @@
     })
     const units = document.querySelectorAll('#track .unit');
 
+    const setTempo = document.getElementById('tempo')
+
+    setTempo.addEventListener('click', () => {
+      const newTempo = prompt('New tempo (BPM)', parseInt(1000 / tempo * 60))
+
+      tempo = 1000 / (+newTempo / 60)
+
+      clearInterval(interval)
+      interval = setInterval(intervalFunction, tempo)
+
+      console.log({ tempo })
+    })
+
     function paintColor(color) {
       if (index > 0) {
         units.item(index - 1).style.textDecoration = 'none'
@@ -128,6 +144,17 @@
 
       units.item(index).style.textDecoration = 'underline'
       units.item(index).style.color = color
+    }
+
+    function intervalFunction() {
+      if (index >= MAQSOUM.length - 1) {
+        index = 0
+      } else {
+        index++
+      }
+
+      passed = false;
+      currentUnit = MAQSOUM[index]
     }
 
 
@@ -153,21 +180,12 @@
       const $canvas = document.querySelector("canvas");
       const canvasContext = $canvas.getContext("2d");
       $canvas.width = document.body.clientWidth;
-      $canvas.height = document.body.clientHeight;
+      $canvas.height = document.body.clientHeight / 2;
 
       aubio().then(({ Pitch }) => {
         currentUnit = MAQSOUM[index]
 
-        setInterval(() => {
-          if (index >= MAQSOUM.length - 1) {
-            index = 0
-          } else {
-            index++
-          }
-
-          passed = false;
-          currentUnit = MAQSOUM[index]
-        }, 200)
+        interval = setInterval(intervalFunction, tempo)
 
         const pitchDetector = new Pitch(
           "default",

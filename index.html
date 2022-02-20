@@ -10,10 +10,17 @@
 <body>
   <div>
     <div style="display: flex; justify-content: space-around;">
-      <h1>Play Maqsoum <button id="tempo">Set tempo</button></h1>
+      <h1>Play Seven <button id="tempo">Set tempo</button></h1>
       <!-- <textarea id="customPattern" placeholder="Custom pattern"></textarea> -->
     </div>
     <div id="track">
+    </div>
+    <div class="status-container">
+      <img src="" id="status" />
+      <div class="status-container__counter">
+        <p>Success: <span id="successCount">0</span></p>
+        <p>Failed: <span id="failedCount">0</span></p>
+      </div>
     </div>
   </div>
   <canvas></canvas>

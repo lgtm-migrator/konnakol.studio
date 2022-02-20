@@ -40,3 +40,19 @@ audio {
   font-weight: bold;
   font-size: 2vw;
 }
+
+.status-container {
+  position: absolute;
+  right: 25%;
+  top: 25%;
+  display: flex;
+}
+
+.status-container p {
+  font-size: 20px;
+}
+
+#status {
+  opacity: 1;
+  transition: ease all .2s;
+}

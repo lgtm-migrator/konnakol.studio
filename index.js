@@ -55,11 +55,11 @@ const setTempo = document.getElementById('tempo')
 setTempo.addEventListener('click', () => {
   const newTempo = prompt('New tempo (BPM)', parseInt(1000 / tempo * 60))
 
-  tempo = 1000 / (+newTempo || tempo / 60)
+  tempo = 1000 / (+newTempo / 60)
 
   clearInterval(interval)
-  interval = setInterval(intervalFunction, tempo)
 
+  interval = setInterval(intervalFunction, tempo)
 })
 
 function paintColor(color) {
@@ -125,7 +125,10 @@ async function run() {
   aubio().then(({ Pitch }) => {
     currentUnit = CURRENT_PATTERN[index]
 
+
     interval = setInterval(intervalFunction, tempo)
+
+
 
     const pitchDetector = new Pitch(
       "default",
@@ -156,8 +159,6 @@ async function run() {
         frequency > currentUnit?.range?.from &&
         frequency < currentUnit?.range?.to
       )
-
-      console.log(isFrequencyMatched)
 
       if (isFrequencyMatched) {
         passed = true;

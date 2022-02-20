@@ -69,8 +69,8 @@ const SCALES = {
       T: {
         symbol: "T",
         range: {
-          from: 50,
-          to: 200
+          from: 200,
+          to: 250
         }
       },
       K: {
@@ -88,10 +88,10 @@ const PATTERNS = {
   Seven: [
     SCALES.DKurd.notes[0],
     null,
-    SCALES.DKurd.percussion.K,
+    SCALES.DKurd.notes[4],
     SCALES.DKurd.notes[0],
     null,
-    SCALES.DKurd.percussion.T,
+    SCALES.DKurd.notes[5],
     null
   ]
 }

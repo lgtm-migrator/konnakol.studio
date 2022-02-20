@@ -1,0 +1,42 @@
+h1 {
+  text-align: center;
+  font-size: 4vw;
+}
+
+html {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  height: 100%;
+}
+
+canvas {
+  position: absolute;
+  bottom: 0;
+}
+
+audio {
+  margin: 8px;
+}
+
+#pitch {
+  position: absolute;
+  top: 30%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 5vw;
+}
+
+#track {
+  display: flex;
+  column-gap: 30px;
+  justify-content: center;
+}
+
+.unit {
+  color: lightgrey;
+  font-weight: bold;
+  font-size: 2vw;
+}

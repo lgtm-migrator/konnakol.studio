@@ -10,6 +10,10 @@
       font-size: 4vw;
     }
 
+    h2 {
+      text-align: center;
+    }
+
     html {
       height: 100%;
     }
@@ -47,23 +51,40 @@
       font-weight: bold;
       font-size: 2vw;
     }
+
+    .bind {
+      margin: 0 auto;
+      display: flex;
+      justify-content: center;
+      column-gap: 20px;
+    }
+
+    .note {
+      background-color: lightgreen;
+    }
+
+    .note_empty {
+      background-color: orange;
+    }
   </style>
 </head>
 
 <body>
   <div>
-    <h1>Play Maqsoum <button id="tempo">Set tempo</button></h1>
+    <h2>Current instrument</h2>
+    <div>
+      <button id="addNote">Add note</button>
+      <div class="bind">
 
+      </div>
+    </div>
+
+    <h1>Play Maqsoum <button id="tempo">Set tempo</button></h1>
     <div id="track">
     </div>
   </div>
   <canvas></canvas>
   <div id="pitch"></div>
-  <!-- <audio
-      src="http://mr3.doubanio.com/2489a904675881096cbec9863f1d55c7/2/fm/song/p456508_128k.mp3"
-      crossorigin="anonymous"
-      controls
-    ></audio> -->
   <script src="https://unpkg.com/aubiojs"></script>
   <script>
     let audioSource, audioContext, scriptProcessor;
@@ -74,6 +95,8 @@
     let currentUnit = null
     let interval = null
     let tempo = 200
+
+    let notes = {}
     // const audio = document.querySelector("audio");
     const maxFrequency = 2000;
     const bufferSize = 1 << 12;
@@ -113,6 +136,8 @@
     run()
 
     const track = document.querySelector('#track')
+    const $addNote = document.querySelector('#addNote')
+    const $bind = document.querySelector('.bind')
     MAQSOUM.forEach((unit) => {
       track.insertAdjacentHTML('beforeend', `<div class="unit">${unit?.symbol ?? '.'}</div>`)
     })
@@ -157,6 +182,40 @@
       currentUnit = MAQSOUM[index]
     }
 
+    $addNote.addEventListener('click', () => {
+      const index = $bind.children.length
+      console.log({ index })
+      $bind.insertAdjacentHTML('beforeend', `
+        <button class="note note_empty">${index} - Bind your note</button>
+      `)
+    })
+
+    const instrument = localStorage.getItem('instrument')
+
+    if (instrument) {
+      notes = JSON.parse(instrument)
+      Object.entries(notes).forEach(([index, frequency]) => {
+        console.log({ index })
+        $bind.insertAdjacentHTML('beforeend', `
+          <button class="note">${index === 0 ? 'Ding' : index} - ${frequency}</button>
+        `)
+      })
+    }
+
+    document.addEventListener('click', e => {
+      if (e.target.classList.contains('note')) {
+        const frequency = prompt('Enter the frequency of your note');
+        if (!Number(frequency)) {
+          alert('Invalid frequency, bind again.')
+        }
+        const [index] = e.target.textContent.split(' - ')
+        e.target.textContent = index + ' - ' + frequency + ' Hz'
+        notes[index] = Number(frequency)
+        console.log({ notes })
+        e.target.classList.remove('note_empty')
+        localStorage.setItem('instrument', JSON.stringify(notes))
+      }
+    })
 
     async function run() {
       // if (audioContext) return;

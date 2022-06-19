@@ -16,6 +16,8 @@ function App() {
   const [currentTact, setCurrentTact] = useState(0);
   const [intervalId, setIntervalId] = useState<number | null>(null);
   const [currentFrequency, setCurrentFrequency] = useState(0);
+  const [success, setSuccess] = useState(0);
+  const [failed, setFailed] = useState(0);
 
   const requestRef = useRef<number | null>(null);
   const analyserNodeRef = useRef<AnalyserNode | null>(null);
@@ -97,6 +99,9 @@ function App() {
     };
   }, []);
 
+  const currentUnit = composition.pattern?.[currentTact]?.[currentFraction]?.unit;
+  const expectedFrequency = currentUnit?.frequency ?? 0;
+
   useEffect(() => {
     if (!intervalId) {
       setCurrentTact(0);
@@ -114,8 +119,15 @@ function App() {
       return setCurrentTact((prev) => prev + 1);
     }
 
+    if (!currentUnit) {
+      return;
+    }
+
     if (isFrequencyCorrect(expectedFrequency, currentFrequency)) {
-      console.log(isFrequencyCorrect(expectedFrequency, currentFrequency));
+      setSuccess(prev => prev + 1);
+      console.log('success', {expectedFrequency, currentFrequency})
+    } else {
+      setFailed(prev => prev + 1);
     }
   }, [
     composition.pattern,
@@ -136,15 +148,13 @@ function App() {
     };
   }, [intervalId]);
 
-
-  const expectedFrequency =
-    composition.pattern?.[currentTact]?.[currentFraction]?.unit?.frequency ?? 0;
-
   return (
     <main>
       <section className="composition">
         <header className="composition__header">
           <h1 className="composition__title">{composition.name}</h1>
+          <p className="composition__success">Success: {success}</p>
+          <p className="composition__failed">Failed: {failed}</p>
           <p className="composition__frequency">
             Expected: {expectedFrequency.toFixed(2)} Hz
           </p>

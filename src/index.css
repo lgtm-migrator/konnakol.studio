@@ -1,5 +1,9 @@
 @import url('https://fonts.googleapis.com/css2?family=Roboto&display=swap');
 
+body {
+    font-family: 'Roboto', sans-serif;
+}
+
 .composition {
     max-width: 70%;
     margin: 0 auto;
@@ -11,7 +15,6 @@
 .composition__title {
     text-align: center;
     font-size: 30px;
-    font-family: 'Roboto', sans-serif;
     margin-right: auto;
 }
 
@@ -29,6 +32,16 @@
 
 .composition__frequency {
     font-family: 'Roboto', sans-serif;
+}
+
+.composition__success {
+    color: green;
+    font-weight: bold;
+}
+
+.composition__failed {
+    color: red;
+    font-weight: bold;
 }
 
 .fraction-index {

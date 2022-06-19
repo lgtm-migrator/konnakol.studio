@@ -1,16 +1,16 @@
 import React, { useEffect, useRef, useState } from "react";
 import { ACF2PLUS, YIN, Macleod, AMDF } from "pitchfinder";
-import { Maqsoum } from "./data/compositions";
+import { MahaPatternOfRainbowBody } from "./data/compositions";
 import "./App.css";
 import Tact from "./components/Tact";
 
-import { bpmToMilliseconds, millisecondsToBPM } from "./utils/tempo.utils";
+import { bpmToMilliseconds, millisecondsToBPM, tick } from "./utils/tempo.utils";
 import { isFrequencyCorrect } from "./utils/frequency.utils";
 
-const detectPitch = AMDF({sampleRate: 48000})
+const detectPitch = AMDF({ sampleRate: 48000 });
 
 function App() {
-  const [composition] = useState(Maqsoum);
+  const [composition] = useState(MahaPatternOfRainbowBody);
   const [tempo, setTempo] = useState(bpmToMilliseconds(composition.tempo));
   const [currentFraction, setCurrentFraction] = useState(0);
   const [currentTact, setCurrentTact] = useState(0);
@@ -84,7 +84,9 @@ function App() {
     }
   };
 
-  const play = () => {
+  const play = async () => {
+    await tick(4);
+
     const interval = window.setInterval(() => {
       setCurrentFraction((prev) => prev + 1);
     }, tempo);
@@ -99,7 +101,8 @@ function App() {
     };
   }, []);
 
-  const currentUnit = composition.pattern?.[currentTact]?.[currentFraction]?.unit;
+  const currentUnit =
+    composition.pattern?.[currentTact]?.[currentFraction]?.unit;
   const expectedFrequency = currentUnit?.frequency ?? 0;
 
   useEffect(() => {
@@ -124,10 +127,10 @@ function App() {
     }
 
     if (isFrequencyCorrect(expectedFrequency, currentFrequency)) {
-      setSuccess(prev => prev + 1);
-      console.log('success', {expectedFrequency, currentFrequency})
+      setSuccess((prev) => prev + 1);
+      console.log("success", { expectedFrequency, currentFrequency });
     } else {
-      setFailed(prev => prev + 1);
+      setFailed((prev) => prev + 1);
     }
   }, [
     composition.pattern,
@@ -136,6 +139,8 @@ function App() {
     currentFraction,
     // currentFrequency,
     currentTact,
+    currentUnit,
+    expectedFrequency,
     intervalId,
   ]);
 

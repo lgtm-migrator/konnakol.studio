@@ -180,3 +180,30 @@ export const Maqsoum = {
     tempo: 120,
     size: 16
 }
+
+export const MahaPatternOfRainbowBody = {
+    id: '4',
+    name: 'MahaPatternOfRainbowBody',
+    pattern: [
+        [
+            { unit: CSharpKurd.notes[4] },
+            { unit: null, color: 'green' },
+            { unit: null, color: 'green' },
+            { unit: CSharpKurd.notes[4] },
+            { unit: CSharpKurd.notes.K, color: 'green' },
+            { unit: null, color: 'green' },
+            { unit: CSharpKurd.notes[4] },
+            { unit: null, color: 'green' },
+            { unit: null, color: 'green' },
+            { unit: CSharpKurd.notes[4] },
+            { unit: null, color: 'green' },
+            { unit: CSharpKurd.notes[4] },
+            { unit: CSharpKurd.notes.K, color: 'green' },
+            { unit: null, color: 'green' },
+            { unit: CSharpKurd.notes[4] },
+            { unit: null, color: 'green' },
+        ],
+    ],
+    tempo: 120,
+    size: 16
+}

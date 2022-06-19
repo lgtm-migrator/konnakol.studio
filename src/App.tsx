@@ -1,4 +1,4 @@
-import React, { useEffect, useLayoutEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { ACF2PLUS, YIN, Macleod, AMDF } from "pitchfinder";
 import { Maqsoum } from "./data/compositions";
 import "./App.css";
@@ -7,7 +7,7 @@ import Tact from "./components/Tact";
 import { bpmToMilliseconds, millisecondsToBPM } from "./utils/tempo.utils";
 import { isFrequencyCorrect } from "./utils/frequency.utils";
 
-const detectPitch = AMDF();
+const detectPitch = AMDF({sampleRate: 48000})
 
 function App() {
   const [composition] = useState(Maqsoum);
@@ -62,9 +62,9 @@ function App() {
 
     const analyserAudioNode = audioContext.createAnalyser();
     analyserAudioNode.fftSize = 2048;
-    // analyserAudioNode.minDecibels = -100;
-    // analyserAudioNode.maxDecibels = -10;
-    // analyserAudioNode.smoothingTimeConstant = 0.3;
+    analyserAudioNode.minDecibels = -100;
+    analyserAudioNode.maxDecibels = -10;
+    analyserAudioNode.smoothingTimeConstant = 0.85;
 
     const sourceAudioNode = audioContext.createMediaStreamSource(micStream);
     sourceAudioNode.connect(analyserAudioNode);

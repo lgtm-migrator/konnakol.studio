@@ -10,7 +10,7 @@ export function millisecondsToBPM(ms: number) {
     return ONE_MINUTE / ms;
 }
 
-export async function tick(count: number = 1, bpm: number = 120) {
+export async function tick(count: number = 1, tempo: number) {
     const tickSound = new Audio('/tick.mp3');
 
     let playedTimes = 1;
@@ -25,6 +25,6 @@ export async function tick(count: number = 1, bpm: number = 120) {
 
             await tickSound.play();
             playedTimes++;
-        }, bpmToMilliseconds(bpm))
+        }, tempo)
     })
 }

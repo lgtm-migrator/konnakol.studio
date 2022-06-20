@@ -1,16 +1,20 @@
 import React, { useEffect, useRef, useState } from "react";
-import { ACF2PLUS, YIN, Macleod, AMDF } from "pitchfinder";
-import { MahaPatternOfRainbowBody } from "./data/compositions";
+import { ACF2PLUS, AMDF, DynamicWavelet } from "pitchfinder";
+import { SullaLulla } from "./data/compositions";
 import "./App.css";
 import Tact from "./components/Tact";
 
-import { bpmToMilliseconds, millisecondsToBPM, tick } from "./utils/tempo.utils";
+import {
+  bpmToMilliseconds,
+  millisecondsToBPM,
+  tick,
+} from "./utils/tempo.utils";
 import { isFrequencyCorrect } from "./utils/frequency.utils";
 
-const detectPitch = AMDF({ sampleRate: 48000 });
+const detectPitch = ACF2PLUS({ sampleRate: 48000 });
 
 function App() {
-  const [composition] = useState(MahaPatternOfRainbowBody);
+  const [composition] = useState(SullaLulla);
   const [tempo, setTempo] = useState(bpmToMilliseconds(composition.tempo));
   const [currentFraction, setCurrentFraction] = useState(0);
   const [currentTact, setCurrentTact] = useState(0);
@@ -18,12 +22,12 @@ function App() {
   const [currentFrequency, setCurrentFrequency] = useState(0);
   const [success, setSuccess] = useState(0);
   const [failed, setFailed] = useState(0);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [passed, setPassed] = useState(false);
 
   const requestRef = useRef<number | null>(null);
   const analyserNodeRef = useRef<AnalyserNode | null>(null);
   const bufferRef = useRef<Float32Array | null>(null);
-
-  const isPlaying = Boolean(intervalId);
 
   const enterBPM = () => {
     const bpm = prompt("Enter BPM", "120");
@@ -44,6 +48,7 @@ function App() {
       clearInterval(intervalId);
       setIntervalId(null);
       disablePitcher();
+      setIsPlaying(false);
     }
   };
 
@@ -85,7 +90,8 @@ function App() {
   };
 
   const play = async () => {
-    await tick(4);
+    setIsPlaying(true);
+    await tick(3, tempo);
 
     const interval = window.setInterval(() => {
       setCurrentFraction((prev) => prev + 1);
@@ -95,12 +101,6 @@ function App() {
     enablePitcher();
   };
 
-  useEffect(() => {
-    return () => {
-      disablePitcher();
-    };
-  }, []);
-
   const currentUnit =
     composition.pattern?.[currentTact]?.[currentFraction]?.unit;
   const expectedFrequency = currentUnit?.frequency ?? 0;
@@ -109,6 +109,7 @@ function App() {
     if (!intervalId) {
       setCurrentTact(0);
       setCurrentFraction(0);
+      setIsPlaying(false);
       return console.log("Finished.");
     }
 
@@ -123,25 +124,24 @@ function App() {
     }
 
     if (!currentUnit) {
-      return;
+      return setPassed(true);
     }
 
-    if (isFrequencyCorrect(expectedFrequency, currentFrequency)) {
+    if (!passed && isFrequencyCorrect(expectedFrequency, currentFrequency)) {
       setSuccess((prev) => prev + 1);
-      console.log("success", { expectedFrequency, currentFrequency });
-    } else {
-      setFailed((prev) => prev + 1);
+      setPassed(true);
     }
   }, [
     composition.pattern,
     composition.pattern.length,
     composition.size,
     currentFraction,
-    // currentFrequency,
+    currentFrequency,
     currentTact,
     currentUnit,
     expectedFrequency,
     intervalId,
+    passed,
   ]);
 
   useEffect(() => {
@@ -152,6 +152,24 @@ function App() {
       }
     };
   }, [intervalId]);
+
+  useEffect(() => {
+    return () => {
+      disablePitcher();
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!isPlaying || !currentUnit || !currentFraction) {
+      return;
+    }
+
+    if (!passed) {
+      setFailed(prev => prev + 1)
+    }
+
+    setPassed(false);
+  }, [currentFraction, isPlaying, currentUnit])
 
   return (
     <main>

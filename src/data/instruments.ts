@@ -49,6 +49,10 @@ export const CSharpKurd =
         K: {
             symbol: 'K',
             frequency: 2200
+        },
+        Slap: {
+            symbol: 'S',
+            frequency: 110
         }
     }
 }

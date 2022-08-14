@@ -1,13 +1,13 @@
-import { Fraction } from '~/entities/fraction/model'
+import { PreparedPattern, prepareTact, RawPattern } from '~/entities/fraction/model'
 import { Frequency } from '~/entities/unit/model'
+import { isFrequencyCorrect } from './utils'
 
-type Pattern = Fraction[][]
 type DetectPitchFn = () => Promise<Frequency>
 
 export interface ICompositionConfig {
   id: number
   name: string
-  pattern: Pattern
+  pattern: RawPattern
   tempo: number
   size: number
 }
@@ -24,14 +24,14 @@ export interface IComposition extends ICompositionConfig {
 export default class Composition implements IComposition {
   id: number
   name: string
-  pattern: Pattern
+  pattern: PreparedPattern
   tempo: number
   size: number
 
   constructor(config: IComposition) {
     this.id = config.id
     this.name = config.name
-    this.pattern = config.pattern
+    this.pattern = config.pattern.map(prepareTact)
     this.tempo = config.tempo
     this.size = config.size
   }
@@ -41,8 +41,16 @@ export default class Composition implements IComposition {
 
     for (const tact of pattern) {
       for (const fraction of tact) {
+        if (!fraction.unit?.frequency) {
+          yield { fraction: fraction.index, isPlayedCorrectly: true }
+          continue
+        }
+
         const frequency = await detectPitch()
-        yield { fraction: fraction.index, isPlayedCorrectly: false }
+        yield {
+          fraction: fraction.index,
+          isPlayedCorrectly: isFrequencyCorrect(fraction.unit.frequency, frequency)
+        }
       }
     }
   }

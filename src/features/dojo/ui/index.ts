@@ -5,7 +5,9 @@ import * as validation from '~/features/dojo/ui/validation'
 
 const promptBPMFx = createEffect(() => prompt('Enter BPM'))
 
+export const playButtonClicked = createEvent()
 export const dojoUIMounted = createEvent()
+export const pitcherUpdated = createEvent<string>()
 
 sample({
   clock: promptBPMFx.doneData,

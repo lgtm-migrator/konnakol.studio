@@ -1,6 +1,8 @@
+export type Frequency = number
+
 export interface Unit {
   symbol: string
-  frequency: number
+  frequency: Frequency
 }
 
-export const createUnit = (symbol: string, frequency: number): Unit => ({ frequency, symbol })
+export const createUnit = (symbol: string, frequency: Frequency): Unit => ({ frequency, symbol })

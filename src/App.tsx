@@ -1,5 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState } from "react";
-import { ACF2PLUS, AMDF, DynamicWavelet } from "pitchfinder";
+import React, { useEffect, useMemo, useState } from "react";
 import { SullaLulla } from "./data/compositions";
 import "./App.css";
 import Tact from "./components/Tact";
@@ -7,27 +6,22 @@ import Tact from "./components/Tact";
 import {
   bpmToMilliseconds,
   millisecondsToBPM,
-  tick,
 } from "./utils/tempo.utils";
-import { isFrequencyCorrect } from "./utils/frequency.utils";
-import { dojoUIMounted } from '~/features/dojo/ui';
+import { dojoUIMounted, pitcherUpdated, playButtonClicked } from '~/features/dojo/ui';
 import { pitchers } from '~/features/dojo/api/pitcher';
-import { $failed, $pitcher, $success, pitcherUpdated } from './features/dojo/model';
+import { $failed, $frequency, $pitcher, $success } from './features/dojo/model';
 import { useStore } from 'effector-react';
-
-const detectPitch = ACF2PLUS({ sampleRate: 48000 });
 
 function App() {
   const [composition] = useState(SullaLulla);
   const [tempo, setTempo] = useState(bpmToMilliseconds(composition.tempo));
   const [currentFraction, setCurrentFraction] = useState(0);
   const [currentTact, setCurrentTact] = useState(0);
-  const [intervalId, setIntervalId] = useState<number | null>(null);
-  const [currentFrequency, setCurrentFrequency] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
   const pitcher = useStore($pitcher)
   const success = useStore($success)
   const failed = useStore($failed)
+  const currentFrequency = useStore($frequency)
 
   const pitchersKeys = useMemo(
     () => Object.keys(pitchers),
@@ -56,7 +50,7 @@ function App() {
           <p className="composition__frequency">
             Received: {currentFrequency.toFixed(2)} Hz
           </p>
-          <button>
+          <button onClick={() => playButtonClicked()}>
             {isPlaying ? "Stop" : "Play"}
           </button>
           <button>

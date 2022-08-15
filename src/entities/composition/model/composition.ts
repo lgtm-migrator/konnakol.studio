@@ -41,12 +41,13 @@ export default class Composition implements IComposition {
 
     for (const tact of pattern) {
       for (const fraction of tact) {
-        if (!fraction.unit?.frequency) {
+        if (!fraction.unit) {
           yield { fraction: fraction.index, isPlayedCorrectly: true }
           continue
         }
 
         const frequency = await detectPitch()
+
         yield {
           fraction: fraction.index,
           isPlayedCorrectly: isFrequencyCorrect(fraction.unit.frequency, frequency)

@@ -17,12 +17,12 @@ export const pitchers: Record<PitcherName, Pitcher> = {
 }
 
 interface PitchResult {
-  frequency: number
+  frequency: number | null
 }
 
 export interface Pitcher {
   name: PitcherName
-  detect: (float32Array: Float32Array) => PitchResult | null
+  detect: (float32Array: Float32Array) => PitchResult
 }
 
 function isProbabalityPitch(pitch: number | null | ProbabilityPitch): pitch is ProbabilityPitch {
@@ -40,7 +40,7 @@ export function mapPitcher(pitcher: PitchDetector | ProbabalisticPitchDetector, 
 
       return result
         ? { frequency: result }
-        : null
+        : { frequency: null }
     },
     name
   }

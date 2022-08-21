@@ -1,7 +1,7 @@
 import { CSharpKurd } from './instruments';
 
 export const AsymetricRefraction = {
-  id: '4',
+  id: 4,
   name: 'Asymetric Refraction',
   pattern: [
     [
@@ -97,11 +97,11 @@ export const AsymetricRefraction = {
       }
     ]
   ],
-  tempo: 180
+  bpm: 180
 }
 
 export const Maqsoum = {
-  id: '4',
+  id: 4,
   name: 'Maqsoum',
   pattern: [
     [
@@ -177,12 +177,12 @@ export const Maqsoum = {
       { unit: null, color: 'green' },
     ],
   ],
-  tempo: 120,
+  bpm: 120,
   size: 16
 }
 
 export const MahaPatternOfRainbowBody = {
-  id: '4',
+  id: 4,
   name: 'MahaPatternOfRainbowBody',
   pattern: [
     [
@@ -204,12 +204,12 @@ export const MahaPatternOfRainbowBody = {
       { unit: null, color: 'green' },
     ],
   ],
-  tempo: 120,
+  bpm: 120,
   size: 16
 }
 
 export const SullaLulla = {
-  id: '4',
+  id: 4,
   name: 'Sulla Lulla',
   pattern: [
     [
@@ -269,6 +269,6 @@ export const SullaLulla = {
       { unit: null },
     ],
   ],
-  tempo: 100,
+  bpm: 100,
   size: 12
 }

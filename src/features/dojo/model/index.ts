@@ -1,17 +1,24 @@
 import { createEffect, createEvent, createStore, sample } from 'effector';
 import { DEFAULT_BPM } from '~/constants';
 import { Pitcher, pitchers } from '~/features/dojo/api/pitcher';
-import { initializeWebAudioApi, IWebAudioAPI } from '~/features/dojo/api/web-audio';
+import { IWebAudioAPI } from '~/features/dojo/api/web-audio';
 import { pitcherUpdated, playButtonClicked, promptBPMFx, stopButtonClicked } from '~/features/dojo/ui';
 import Composition from '~/entities/composition/model';
 import * as validation from '~/features/dojo/ui/validation';
 import { FractionWithIndex } from '~/entities/fraction/model';
 import { SullaLulla } from '~/data/compositions';
+import { $webAudio, initializeWebAudioApiFx } from '../api';
+import { interval } from 'patronum';
 
 interface CheckCompositionFxParams {
   composition: Composition
   pitcher: Pitcher,
   webAudio: IWebAudioAPI
+}
+
+interface DetectPitchInBackgroundFxParams {
+  webAudio: IWebAudioAPI;
+  pitcher: Pitcher;
 }
 
 type CheckCompositionFx = (params: CheckCompositionFxParams) => void
@@ -30,10 +37,12 @@ export const tactUpdated = createEvent<number>()
 export const incrementSuccessScore = createEvent()
 export const incrementFailedScore = createEvent()
 export const compositionSelected = createEvent<Composition>()
+export const startCheckingFrequencyInBackground = createEvent();
 
 export const checkCompositionFx = createEffect<CheckCompositionFx>(
   async ({ composition, pitcher }) => {
-    const webAudio = await initializeWebAudioApi()
+    // TODO: learn how not to call one effect inside another
+    const webAudio = await initializeWebAudioApiFx();
 
     const detectPitch = () => pitcher.detect(webAudio.buffer).frequency
 
@@ -48,10 +57,15 @@ export const checkCompositionFx = createEffect<CheckCompositionFx>(
   }
 )
 
-export const stopCheckingCompositionFx = createEffect((composition: Composition) => composition.stop())
+export const stopCheckingCompositionFx = createEffect(
+  (composition: Composition) => composition.stop()
+)
 
-export const detectPitchInBackgroundFx = createEffect(async (pitcher: Pitcher) => {
-  const { buffer } = await initializeWebAudioApi() // TODO
+export const detectPitchInBackgroundFx = createEffect(async ({
+  webAudio,
+  pitcher
+}: DetectPitchInBackgroundFxParams) => {
+  return pitcher.detect(webAudio.buffer);
 })
 
 $tact.reset(stopCheckingCompositionFx.done)
@@ -81,8 +95,10 @@ sample({
 
 sample({
   clock: playButtonClicked,
-  source: { composition: $composition, pitcher: $pitcher },
-  filter: (params): params is CheckCompositionFxParams => Boolean(params.composition),
+  source: { composition: $composition, pitcher: $pitcher, webAudio: $webAudio },
+  filter: (params): params is CheckCompositionFxParams => Boolean(
+    params.webAudio && params.composition
+  ),
   target: checkCompositionFx
 })
 
@@ -103,6 +119,13 @@ sample({
 sample({
   clock: compositionSelected,
   target: $composition
+})
+
+const { tick } = interval({
+  timeout: 1000 / 60,
+  start: playButtonClicked,
+  stop: stopButtonClicked,
+  leading: true
 })
 
 // TODO: must be called from list of the compositions, initial is null

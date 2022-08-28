@@ -23,7 +23,7 @@ export interface ICompositionState {
 }
 
 export interface IComposition extends ICompositionConfig {
-  play: (detectPitch: DetectPitchFn) => Promise<void>;
+  play: (detectPitch: DetectPitchFn) => Promise<Composition>;
 }
 
 export default class Composition implements IComposition {
@@ -34,6 +34,7 @@ export default class Composition implements IComposition {
   public size: number
 
   private iterator: CompositionTransition | null = null
+  private listeners: UpdateHandler[] = []
 
   constructor(config: ICompositionConfig) {
     this.id = config.id
@@ -43,19 +44,31 @@ export default class Composition implements IComposition {
     this.size = config.size
   }
 
-  public async play(detectPitch: DetectPitchFn, onUpdate?: UpdateHandler) {
+  public async play(detectPitch: DetectPitchFn) {
     this.iterator = this.transition(detectPitch)
 
     for await (const state of this.iterator) {
-      onUpdate?.(state)
+      this.listeners.forEach(onUpdate => onUpdate?.(state))
     }
 
     this.iterator = null
+    return this
   }
 
   public async stop() {
     await this.iterator?.return(null)
     this.iterator = null
+    return this
+  }
+
+  public subscribe(listener: UpdateHandler) {
+    this.listeners = [...this.listeners, listener]
+    return this
+  }
+
+  public unsubscribe() {
+    this.listeners = []
+    return this
   }
 
   private async *transition(detectPitch: DetectPitchFn) {

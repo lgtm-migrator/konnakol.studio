@@ -1,6 +1,7 @@
 import { ACF2PLUS, AMDF, Macleod, YIN } from 'pitchfinder'
 import { PitchDetector, ProbabalisticPitchDetector, ProbabilityPitch } from 'pitchfinder/lib/detectors/types'
 import { SAMPLE_RATE } from '~/constants'
+import { Frequency } from '~/entities/unit/model'
 
 export enum PitcherName {
   ACF2PLUS = 'ACF2PLUS',
@@ -16,9 +17,7 @@ export const pitchers: Record<PitcherName, Pitcher> = {
   [PitcherName.Macleod]: mapPitcher(Macleod({ sampleRate: SAMPLE_RATE }), PitcherName.Macleod)
 }
 
-interface PitchResult {
-  frequency: number | null
-}
+type PitchResult = Frequency | null
 
 export interface Pitcher {
   name: PitcherName
@@ -35,12 +34,10 @@ export function mapPitcher(pitcher: PitchDetector | ProbabalisticPitchDetector, 
       const result = pitcher(buffer)
 
       if (isProbabalityPitch(result)) {
-        return { frequency: result.freq }
+        return result.freq
       }
 
       return result
-        ? { frequency: result }
-        : { frequency: null }
     },
     name
   }

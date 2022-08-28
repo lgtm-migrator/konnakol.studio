@@ -8,7 +8,8 @@ import * as validation from '~/features/dojo/ui/validation';
 import { FractionWithIndex } from '~/entities/fraction/model';
 import { SullaLulla } from '~/data/compositions';
 import { $webAudio, initializeWebAudioApiFx } from '../api';
-import { interval } from 'patronum';
+import { interval, reset } from 'patronum';
+import { Frequency } from '~/entities/unit/model';
 
 interface CheckCompositionFxParams {
   composition: Composition
@@ -21,13 +22,19 @@ interface DetectPitchInBackgroundFxParams {
   pitcher: Pitcher;
 }
 
+interface SubscribeToCompositionUpdatesFxParams {
+  isPlaying: boolean;
+  composition: Composition;
+}
+
 type CheckCompositionFx = (params: CheckCompositionFxParams) => void
+type SubscribeToCompositionUpdatesFx = (params: SubscribeToCompositionUpdatesFxParams) => void
 
 export const $bpm = createStore(DEFAULT_BPM)
 export const $composition = createStore<Composition | null>(null)
 export const $fraction = createStore<FractionWithIndex | null>(null)
 export const $tact = createStore<number>(0)
-export const $frequency = createStore<number>(0)
+export const $frequency = createStore<Frequency>(0)
 export const $pitcher = createStore<Pitcher>(pitchers.ACF2PLUS)
 export const $success = createStore<number>(0)
 export const $failed = createStore<number>(0)
@@ -40,20 +47,29 @@ export const compositionSelected = createEvent<Composition>()
 export const startCheckingFrequencyInBackground = createEvent();
 
 export const checkCompositionFx = createEffect<CheckCompositionFx>(
-  async ({ composition, pitcher }) => {
-    // TODO: learn how not to call one effect inside another
-    const webAudio = await initializeWebAudioApiFx();
+  async ({ composition, pitcher, webAudio }) => {
+    const detectPitch = () => pitcher.detect(webAudio.buffer)
 
-    const detectPitch = () => pitcher.detect(webAudio.buffer).frequency
+    await composition.play(detectPitch)
+  }
+)
 
-    await composition.play(detectPitch, ({ fraction, isPlayedCorrectly, tactIndex }) => {
-      fractionUpdated(fraction)
-      tactUpdated(tactIndex)
+export const subscribeToCompositionUpdatesFx = createEffect<SubscribeToCompositionUpdatesFx>(
+  ({ isPlaying, composition }) => {
+    if (isPlaying) {
+      composition?.subscribe(
+        ({ fraction, isPlayedCorrectly, tactIndex }) => {
+          fractionUpdated(fraction)
+          tactUpdated(tactIndex)
 
-      isPlayedCorrectly
-        ? incrementSuccessScore()
-        : incrementFailedScore()
-    })
+          isPlayedCorrectly
+            ? incrementSuccessScore()
+            : incrementFailedScore()
+        }
+      )
+    } else {
+      composition?.unsubscribe()
+    }
   }
 )
 
@@ -61,15 +77,28 @@ export const stopCheckingCompositionFx = createEffect(
   (composition: Composition) => composition.stop()
 )
 
-export const detectPitchInBackgroundFx = createEffect(async ({
+export const detectPitchInBackgroundFx = createEffect(({
   webAudio,
   pitcher
-}: DetectPitchInBackgroundFxParams) => {
-  return pitcher.detect(webAudio.buffer);
+}: DetectPitchInBackgroundFxParams) => pitcher.detect(webAudio.buffer))
+
+reset({
+  clock: stopCheckingCompositionFx.done,
+  target: [$tact, $fraction, $frequency]
 })
 
-$tact.reset(stopCheckingCompositionFx.done)
-$fraction.reset(stopCheckingCompositionFx.done)
+sample({
+  clock: compositionSelected,
+  target: $composition
+})
+
+sample({
+  clock: checkCompositionFx.pending,
+  source: $composition,
+  filter: (composition): composition is Composition => !!composition,
+  fn: (composition: Composition, isPlaying: boolean) => ({ composition, isPlaying }),
+  target: subscribeToCompositionUpdatesFx
+})
 
 sample({
   clock: pitcherUpdated,
@@ -94,39 +123,55 @@ sample({
 })
 
 sample({
-  clock: playButtonClicked,
-  source: { composition: $composition, pitcher: $pitcher, webAudio: $webAudio },
-  filter: (params): params is CheckCompositionFxParams => Boolean(
-    params.webAudio && params.composition
-  ),
+  clock: initializeWebAudioApiFx.doneData,
+  source: { composition: $composition, pitcher: $pitcher },
+  filter: (sourceData): sourceData is { pitcher: Pitcher, composition: Composition } => !!sourceData.composition,
+  fn: ({ composition, pitcher }, webAudio) => ({ composition: composition as Composition, webAudio, pitcher }),
   target: checkCompositionFx
 })
 
 sample({
   clock: stopButtonClicked,
-  source: { composition: $composition, isPlaying: checkCompositionFx.pending },
-  filter: ({ isPlaying, composition }) => isPlaying && Boolean(composition),
-  fn: ({ composition }) => {
-    if (!composition) {
-      throw new Error('Composition is not selected.')
-    }
-
-    return composition
-  },
+  source: $composition,
+  filter: Boolean,
   target: stopCheckingCompositionFx
 })
 
 sample({
-  clock: compositionSelected,
-  target: $composition
+  clock: playButtonClicked,
+  source: $webAudio,
+  target: initializeWebAudioApiFx
 })
 
 const { tick } = interval({
+  start: initializeWebAudioApiFx.doneData,
+  stop: checkCompositionFx.doneData,
   timeout: 1000 / 60,
-  start: playButtonClicked,
-  stop: stopButtonClicked,
   leading: true
 })
+
+sample({
+  clock: initializeWebAudioApiFx.doneData,
+  source: $webAudio,
+  fn: (_, webAudio) => webAudio,
+  target: $webAudio
+})
+
+sample({
+  clock: tick,
+  source: { webAudio: $webAudio, pitcher: $pitcher },
+  filter: (params): params is DetectPitchInBackgroundFxParams => !!params.webAudio,
+  fn: (params: DetectPitchInBackgroundFxParams) => params,
+  target: detectPitchInBackgroundFx
+})
+
+sample({
+  clock: detectPitchInBackgroundFx.doneData,
+  filter: (frequency): frequency is Frequency => !!frequency,
+  fn: (frequency: Frequency) => frequency,
+  target: $frequency
+})
+
 
 // TODO: must be called from list of the compositions, initial is null
 compositionSelected(new Composition(SullaLulla)) 

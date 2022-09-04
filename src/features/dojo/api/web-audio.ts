@@ -1,6 +1,7 @@
 export interface IWebAudioAPI {
   audioContext: AudioContext
   sourceAudioNode: MediaStreamAudioSourceNode
+  analyserAudioNode: AnalyserNode
   buffer: Float32Array
 }
 
@@ -24,6 +25,7 @@ export async function initializeWebAudioApi(): Promise<IWebAudioAPI> {
   return {
     audioContext,
     sourceAudioNode,
+    analyserAudioNode,
     buffer
   }
 }

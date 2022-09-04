@@ -1,4 +1,5 @@
 import { createEffect, createStore, sample } from 'effector';
+import { buffer } from 'stream/consumers';
 import { Pitcher } from './pitcher';
 import { initializeWebAudioApi, IWebAudioAPI } from './web-audio';
 
@@ -14,11 +15,11 @@ export const initializeWebAudioApiFx = createEffect((webAudio: IWebAudioAPI | nu
 })
 
 export const detectPitchInBackgroundFx = createEffect(({
-  webAudio,
+  webAudio: { analyserAudioNode, buffer },
   pitcher
 }: DetectPitchInBackgroundFxParams) => {
-  console.log({webAudio})
-  return pitcher.detect(webAudio.buffer)
+  analyserAudioNode.getFloatFrequencyData(buffer)
+  return pitcher.detect(buffer)
 })
 
 sample({

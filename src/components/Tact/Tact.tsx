@@ -6,7 +6,7 @@ import Fraction from "../Fraction/Fraction";
 interface ITactProps {
   fractions: Array<IFraction>;
   selected: boolean;
-  selectedFraction: number;
+  selectedFraction?: number;
 }
 
 function Tact(props: ITactProps) {

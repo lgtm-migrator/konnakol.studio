@@ -1,4 +1,4 @@
-import { createEffect, createEvent, createStore, sample } from 'effector';
+import { combine, createEffect, createEvent, createStore, sample, Store, UnitValue } from 'effector';
 import { DEFAULT_BPM } from '~/constants';
 import { Pitcher, pitchers } from '~/features/dojo/api/pitcher';
 import { IWebAudioAPI } from '~/features/dojo/api/web-audio';
@@ -10,11 +10,13 @@ import { SullaLulla } from '~/data/compositions';
 import { $webAudio, detectPitchInBackgroundFx, DetectPitchInBackgroundFxParams, initializeWebAudioApiFx } from '../api';
 import { interval, reset } from 'patronum';
 import { Frequency } from '~/entities/unit/model';
+import { $score, Correctness, ScoreSource, ScoreString, updateScore } from './score';
+import { isFrequencyCorrect } from '~/utils/frequency.utils';
 
-interface CheckCompositionFxParams {
-  composition: Composition
-  pitcher: Pitcher,
-  webAudio: IWebAudioAPI
+interface CheckCompositionFxSource {
+  composition: Composition | null
+  pitcher: Pitcher
+  webAudio: IWebAudioAPI | null
 }
 
 interface SubscribeToCompositionUpdatesFxParams {
@@ -22,45 +24,40 @@ interface SubscribeToCompositionUpdatesFxParams {
   composition: Composition;
 }
 
-type CheckCompositionFx = (params: CheckCompositionFxParams) => void
+
+
+type CheckCompositionFx = (composition: Composition) => void
 type SubscribeToCompositionUpdatesFx = (params: SubscribeToCompositionUpdatesFxParams) => void
 
 export const $bpm = createStore(DEFAULT_BPM)
 export const $composition = createStore<Composition | null>(null)
 export const $fraction = createStore<FractionWithIndex | null>(null)
-export const $tact = createStore<number>(0)
+export const $tactIndex = createStore<number>(0)
 export const $frequency = createStore<Frequency>(0)
 export const $pitcher = createStore<Pitcher>(pitchers.ACF2PLUS)
-export const $success = createStore<number>(0)
-export const $failed = createStore<number>(0)
 export const $isListening = $webAudio.map(Boolean)
+export const $scoreSource = combine({
+  frequency: $frequency,
+  tactIndex: $tactIndex,
+  fraction: $fraction,
+})
 
 export const fractionUpdated = createEvent<FractionWithIndex>()
 export const tactUpdated = createEvent<number>()
-export const incrementSuccessScore = createEvent()
-export const incrementFailedScore = createEvent()
 export const compositionSelected = createEvent<Composition>()
 export const startCheckingFrequencyInBackground = createEvent()
 
 export const checkCompositionFx = createEffect<CheckCompositionFx>(
-  async ({ composition, pitcher, webAudio }) => {
-    const detectPitch = () => pitcher.detect(webAudio.buffer)
-
-    await composition.play(detectPitch)
-  }
+  (composition: Composition) => composition.play()
 )
 
 export const subscribeToCompositionUpdatesFx = createEffect<SubscribeToCompositionUpdatesFx>(
   ({ isPlaying, composition }) => {
     if (isPlaying) {
       composition?.subscribe(
-        ({ fraction, isPlayedCorrectly, tactIndex }) => {
+        ({ fraction, tactIndex }) => {
           fractionUpdated(fraction)
           tactUpdated(tactIndex)
-
-          isPlayedCorrectly
-            ? incrementSuccessScore()
-            : incrementFailedScore()
         }
       )
     } else {
@@ -75,7 +72,7 @@ export const stopCheckingCompositionFx = createEffect(
 
 reset({
   clock: stopCheckingCompositionFx.done,
-  target: [$tact, $fraction, $frequency]
+  target: [$tactIndex, $fraction, $frequency, $score]
 })
 
 sample({
@@ -86,9 +83,16 @@ sample({
 sample({
   clock: checkCompositionFx.pending,
   source: $composition,
-  filter: (composition): composition is Composition => !!composition,
-  fn: (composition: Composition, isPlaying: boolean) => ({ composition, isPlaying }),
+  filter: (composition: Composition | null): composition is Composition => !!composition,
+  fn: (composition, isPlaying) => ({ composition, isPlaying }),
   target: subscribeToCompositionUpdatesFx
+})
+
+sample({
+  clock: playButtonClicked,
+  source: $composition,
+  filter: Boolean,
+  target: checkCompositionFx
 })
 
 sample({
@@ -104,7 +108,7 @@ sample({
 
 sample({
   clock: tactUpdated,
-  target: $tact
+  target: $tactIndex
 })
 
 sample({
@@ -145,6 +149,19 @@ sample({
   filter: (frequency): frequency is Frequency => !!frequency,
   fn: (frequency: Frequency) => frequency,
   target: $frequency
+})
+
+sample({
+  clock: $scoreSource,
+  filter: (source: UnitValue<typeof $scoreSource>): source is ScoreSource => !!source?.fraction?.unit,
+  fn: ({ fraction, frequency, tactIndex }): [ScoreString, Correctness] => {
+    const status = isFrequencyCorrect(fraction.unit.frequency, frequency)
+      ? 'success'
+      : 'failed'
+
+    return [`${tactIndex}:${fraction.index}`, status];
+  },
+  target: updateScore
 })
 
 // TODO: must be called from list of the compositions, initial is null

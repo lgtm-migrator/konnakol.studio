@@ -19,7 +19,6 @@ export interface ICompositionConfig {
 export interface ICompositionState {
   tactIndex: number
   fraction: FractionWithIndex
-  isPlayedCorrectly: boolean
 }
 
 export interface IComposition extends ICompositionConfig {
@@ -44,8 +43,8 @@ export default class Composition implements IComposition {
     this.size = config.size
   }
 
-  public async play(detectPitch: DetectPitchFn) {
-    this.iterator = this.transition(detectPitch)
+  public async play() {
+    this.iterator = this.transition()
 
     for await (const state of this.iterator) {
       this.listeners.forEach(onUpdate => onUpdate?.(state))
@@ -71,24 +70,14 @@ export default class Composition implements IComposition {
     return this
   }
 
-  private async *transition(detectPitch: DetectPitchFn) {
+  private async *transition() {
     for (const [tactIndex, tact] of this.pattern.entries()) {
       for (const [fractionIndex, fraction] of tact.entries()) {
         await sleep(this.interval)
 
-        const receivedFrequency = detectPitch()
-        const expectedFrequency = fraction.unit?.frequency
-
-        console.log({ receivedFrequency, expectedFrequency })
-
-        const isPlayedCorrectly = expectedFrequency && receivedFrequency
-          ? isFrequencyCorrect(expectedFrequency, receivedFrequency)
-          : false
-
         yield this.constructCurrentState(
           tactIndex,
           { ...fraction, index: fractionIndex },
-          isPlayedCorrectly
         )
       }
     }
@@ -96,12 +85,10 @@ export default class Composition implements IComposition {
 
   private constructCurrentState = (
     tactIndex: number,
-    fraction: FractionWithIndex,
-    isPlayedCorrectly: boolean
+    fraction: FractionWithIndex
   ): ICompositionState => ({
     tactIndex,
-    fraction,
-    isPlayedCorrectly
+    fraction
   })
 
   private get interval() {

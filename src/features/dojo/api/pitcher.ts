@@ -37,6 +37,10 @@ export function mapPitcher(pitcher: PitchDetector | ProbabalisticPitchDetector, 
         return result.freq
       }
 
+      if (typeof result === 'number' && result <= 0) {
+        return null
+      }
+
       return result
     },
     name

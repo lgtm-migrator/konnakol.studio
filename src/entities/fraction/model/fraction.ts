@@ -1,11 +1,11 @@
 import { Unit } from '~/entities/unit/model';
 
-export interface Fraction {
-  unit: Unit | null
+export interface Fraction<U = Unit | null> {
+  unit: U
   color?: string
 }
 
-export interface FractionWithIndex extends Fraction {
+export interface FractionWithIndex<U = Unit | null> extends Fraction<U> {
   index: number
 }
 

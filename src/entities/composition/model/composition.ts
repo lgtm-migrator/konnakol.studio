@@ -77,9 +77,12 @@ export default class Composition implements IComposition {
         await sleep(this.interval)
 
         const receivedFrequency = detectPitch()
+        const expectedFrequency = fraction.unit?.frequency
 
-        const isPlayedCorrectly = fraction.unit && receivedFrequency
-          ? isFrequencyCorrect(fraction.unit.frequency, receivedFrequency)
+        console.log({ receivedFrequency, expectedFrequency })
+
+        const isPlayedCorrectly = expectedFrequency && receivedFrequency
+          ? isFrequencyCorrect(expectedFrequency, receivedFrequency)
           : false
 
         yield this.constructCurrentState(

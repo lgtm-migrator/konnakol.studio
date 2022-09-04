@@ -37,6 +37,8 @@ export function mapPitcher(pitcher: PitchDetector | ProbabalisticPitchDetector, 
         return result.freq
       }
 
+      console.log({result})
+
       return result
     },
     name

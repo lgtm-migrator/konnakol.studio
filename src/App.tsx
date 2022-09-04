@@ -2,7 +2,12 @@ import React, { useMemo } from "react";
 import "./App.css";
 import Tact from "./components/Tact";
 
-import { pitcherUpdated, playButtonClicked, stopButtonClicked } from "~/features/dojo/ui";
+import {
+  listenButtonClicked,
+  pitcherUpdated,
+  playButtonClicked,
+  stopButtonClicked,
+} from "~/features/dojo/ui";
 import { pitchers } from "~/features/dojo/api/pitcher";
 import {
   $bpm,
@@ -13,6 +18,7 @@ import {
   $pitcher,
   $success,
   $tact,
+  $isListening,
   checkCompositionFx,
 } from "./features/dojo/model";
 import { useStore } from "effector-react";
@@ -25,6 +31,7 @@ function App() {
   const currentFrequency = useStore($frequency);
   const bpm = useStore($bpm);
   const isPlaying = useStore(checkCompositionFx.pending);
+  const isListening = useStore($isListening);
   const currentTact = useStore($tact);
   const currentFraction = useStore($fraction);
 
@@ -46,7 +53,19 @@ function App() {
             <p className="composition__frequency">
               Received: {currentFrequency.toFixed(2)} Hz
             </p>
-            <button onClick={() => !isPlaying ? playButtonClicked() : stopButtonClicked()}>
+            <button
+              style={{ backgroundColor: isListening ? "green" : "red" }}
+              onClick={() => listenButtonClicked()}
+              disabled={isListening}
+            >
+              Listening [{!isListening ? "off" : "on"}]
+            </button>
+            <button
+              disabled={!isListening}
+              onClick={() =>
+                !isPlaying ? playButtonClicked() : stopButtonClicked()
+              }
+            >
               {isPlaying ? "Stop" : "Play"}
             </button>
             <button>Enter BPM ({bpm})</button>

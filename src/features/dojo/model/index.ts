@@ -2,12 +2,12 @@ import { createEffect, createEvent, createStore, sample } from 'effector';
 import { DEFAULT_BPM } from '~/constants';
 import { Pitcher, pitchers } from '~/features/dojo/api/pitcher';
 import { IWebAudioAPI } from '~/features/dojo/api/web-audio';
-import { pitcherUpdated, playButtonClicked, promptBPMFx, stopButtonClicked } from '~/features/dojo/ui';
+import { listenButtonClicked, pitcherUpdated, playButtonClicked, promptBPMFx, stopButtonClicked } from '~/features/dojo/ui';
 import Composition from '~/entities/composition/model';
 import * as validation from '~/features/dojo/ui/validation';
 import { FractionWithIndex } from '~/entities/fraction/model';
 import { SullaLulla } from '~/data/compositions';
-import { $webAudio, initializeWebAudioApiFx } from '../api';
+import { $webAudio, detectPitchInBackgroundFx, DetectPitchInBackgroundFxParams, initializeWebAudioApiFx } from '../api';
 import { interval, reset } from 'patronum';
 import { Frequency } from '~/entities/unit/model';
 
@@ -15,11 +15,6 @@ interface CheckCompositionFxParams {
   composition: Composition
   pitcher: Pitcher,
   webAudio: IWebAudioAPI
-}
-
-interface DetectPitchInBackgroundFxParams {
-  webAudio: IWebAudioAPI;
-  pitcher: Pitcher;
 }
 
 interface SubscribeToCompositionUpdatesFxParams {
@@ -38,13 +33,14 @@ export const $frequency = createStore<Frequency>(0)
 export const $pitcher = createStore<Pitcher>(pitchers.ACF2PLUS)
 export const $success = createStore<number>(0)
 export const $failed = createStore<number>(0)
+export const $isListening = $webAudio.map(Boolean)
 
 export const fractionUpdated = createEvent<FractionWithIndex>()
 export const tactUpdated = createEvent<number>()
 export const incrementSuccessScore = createEvent()
 export const incrementFailedScore = createEvent()
 export const compositionSelected = createEvent<Composition>()
-export const startCheckingFrequencyInBackground = createEvent();
+export const startCheckingFrequencyInBackground = createEvent()
 
 export const checkCompositionFx = createEffect<CheckCompositionFx>(
   async ({ composition, pitcher, webAudio }) => {
@@ -76,11 +72,6 @@ export const subscribeToCompositionUpdatesFx = createEffect<SubscribeToCompositi
 export const stopCheckingCompositionFx = createEffect(
   (composition: Composition) => composition.stop()
 )
-
-export const detectPitchInBackgroundFx = createEffect(({
-  webAudio,
-  pitcher
-}: DetectPitchInBackgroundFxParams) => pitcher.detect(webAudio.buffer))
 
 reset({
   clock: stopCheckingCompositionFx.done,
@@ -123,11 +114,9 @@ sample({
 })
 
 sample({
-  clock: initializeWebAudioApiFx.doneData,
-  source: { composition: $composition, pitcher: $pitcher },
-  filter: (sourceData): sourceData is { pitcher: Pitcher, composition: Composition } => !!sourceData.composition,
-  fn: ({ composition, pitcher }, webAudio) => ({ composition: composition as Composition, webAudio, pitcher }),
-  target: checkCompositionFx
+  clock: listenButtonClicked,
+  source: $webAudio,
+  target: initializeWebAudioApiFx
 })
 
 sample({
@@ -137,30 +126,16 @@ sample({
   target: stopCheckingCompositionFx
 })
 
-sample({
-  clock: playButtonClicked,
-  source: $webAudio,
-  target: initializeWebAudioApiFx
-})
-
 const { tick } = interval({
-  start: initializeWebAudioApiFx.doneData,
-  stop: checkCompositionFx.doneData,
+  start: listenButtonClicked,
   timeout: 1000 / 60,
   leading: true
 })
 
 sample({
-  clock: initializeWebAudioApiFx.doneData,
-  source: $webAudio,
-  fn: (_, webAudio) => webAudio,
-  target: $webAudio
-})
-
-sample({
   clock: tick,
   source: { webAudio: $webAudio, pitcher: $pitcher },
-  filter: (params): params is DetectPitchInBackgroundFxParams => !!params.webAudio,
+  filter: (params): params is DetectPitchInBackgroundFxParams => Boolean(params.webAudio),
   fn: (params: DetectPitchInBackgroundFxParams) => params,
   target: detectPitchInBackgroundFx
 })
@@ -171,7 +146,6 @@ sample({
   fn: (frequency: Frequency) => frequency,
   target: $frequency
 })
-
 
 // TODO: must be called from list of the compositions, initial is null
 compositionSelected(new Composition(SullaLulla)) 

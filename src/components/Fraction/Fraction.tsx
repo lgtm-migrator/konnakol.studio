@@ -1,7 +1,7 @@
 import "./Fraction.css";
 
 interface IFractionProps {
-  symbol: string;
+  symbol?: string;
   color?: string;
   selected: boolean;
 }
@@ -9,8 +9,10 @@ interface IFractionProps {
 function Fraction(props: IFractionProps) {
   return (
     <div className={`fraction ${props.selected ? "fraction_selected" : ""}`}>
-      <p style={{ color: props.color }}>
-        <span>{props.symbol}</span>
+      <p className="fraction__unit" style={{ color: props.color }}>
+        <span className={`fraction__symbol ${!props.symbol ? 'fraction__symbol_small' : ''}`}>
+          {props.symbol ?? "·"}
+        </span>
       </p>
     </div>
   );

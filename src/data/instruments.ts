@@ -57,3 +57,44 @@ export const CSharpKurd =
     }
 }
 
+export const DKurd = {
+  name: 'D Kurd',
+  notes:  {
+    0: {
+      symbol: 'D',
+      frequency: 146.83
+    },
+    1: {
+      symbol: '1',
+      frequency: 220
+    },
+    2: {
+      symbol: '2',
+      frequency: 233.08
+    },
+    3: {
+      symbol: '3',
+      frequency: 261.63
+    },
+    4: {
+      symbol: '4',
+      frequency: 293.66
+    },
+    5: {
+      symbol: '5',
+      frequency: 329.63
+    },
+    6: {
+      symbol: '6',
+      frequency: 349.23
+    },
+    7: {
+      symbol: '7',
+      frequency: 392.00
+    },
+    8: {
+      symbol: '8',
+      frequency: 440.00
+    }
+  }
+}

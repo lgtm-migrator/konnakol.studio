@@ -15,7 +15,7 @@ function Tact(props: ITactProps) {
       {props.fractions.map((fr, i) => (
         <Fraction
           key={i}
-          symbol={fr.unit?.symbol ?? "·"}
+          symbol={fr.unit?.symbol}
           color={fr.color}
           selected={props.selected && props.selectedFraction === i}
         />

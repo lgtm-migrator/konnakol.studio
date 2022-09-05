@@ -1,4 +1,4 @@
-import { CSharpKurd } from './instruments';
+import { CSharpKurd, DKurd } from './instruments';
 
 export const AsymetricRefraction = {
   id: 4,
@@ -271,4 +271,53 @@ export const SullaLulla = {
   ],
   bpm: 100,
   size: 12
+}
+
+export const Osherov1 = {
+  id: 4,
+  name: 'Kirill Osherov Exercise #1',
+  pattern: [
+    [
+      { unit: DKurd.notes[0], },
+      { unit: null, color: 'green' },
+      { unit: null },
+      { unit: DKurd.notes[6], color: 'green' },
+      { unit: DKurd.notes[3] },
+      { unit: null, color: 'green' },
+      { unit: null },
+      { unit: null, color: 'green' }
+    ],
+    [
+      { unit: null },
+      { unit: DKurd.notes[1], color: 'green' },
+      { unit: DKurd.notes[4] },
+      { unit: null, color: 'green' },
+      { unit: null },
+      { unit: DKurd.notes[2], color: 'green' },
+      { unit: null },
+      { unit: null, color: 'green' }
+    ],
+    [
+      { unit: null },
+      { unit: null, color: 'green' },
+      { unit: DKurd.notes[3] },
+      { unit: null, color: 'green' },
+      { unit: null },
+      { unit: DKurd.notes[1], color: 'green' },
+      { unit: DKurd.notes[4] },
+      { unit: null, color: 'green' }
+    ],
+    [
+      { unit: null },
+      { unit: null, color: 'green' },
+      { unit: DKurd.notes[4] },
+      { unit: DKurd.notes[2], color: 'green' },
+      { unit: DKurd.notes[1] },
+      { unit: DKurd.notes[1], color: 'green' },
+      { unit: DKurd.notes[1] },
+      { unit: DKurd.notes[1], color: 'green' },
+    ]
+  ],
+  bpm: 100,
+  size: 8
 }

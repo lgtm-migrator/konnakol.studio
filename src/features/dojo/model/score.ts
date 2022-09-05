@@ -4,12 +4,14 @@ import { Frequency, Unit } from '~/entities/unit/model';
 
 export type TactIndex = number
 export type FractionIndex = number
+export type LoopIndex = number
 export type Correctness = 'success' | 'failed'
-export type ScoreString = `${TactIndex}:${FractionIndex}`
+export type ScoreString = `${LoopIndex}:${TactIndex}:${FractionIndex}`
 export type CheckedFractions = Record<ScoreString, Correctness>
 
 export interface ScoreSource {
   frequency: Frequency
+  loopIndex: LoopIndex
   tactIndex: TactIndex
   fraction: FractionWithIndex<Unit>
 }

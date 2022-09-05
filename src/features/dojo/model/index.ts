@@ -6,25 +6,26 @@ import { listenButtonClicked, pitcherUpdated, playButtonClicked, promptBPMFx, st
 import Composition from '~/entities/composition/model';
 import * as validation from '~/features/dojo/ui/validation';
 import { FractionWithIndex } from '~/entities/fraction/model';
-import { SullaLulla } from '~/data/compositions';
+import { Osherov1, SullaLulla } from '~/data/compositions';
 import { $webAudio, detectPitchInBackgroundFx, DetectPitchInBackgroundFxParams, initializeWebAudioApiFx } from '../api';
 import { interval, reset } from 'patronum';
 import { Frequency } from '~/entities/unit/model';
 import { $score, Correctness, ScoreSource, ScoreString, updateScore } from './score';
 import { isFrequencyCorrect } from '~/utils/frequency.utils';
 
-interface CheckCompositionFxSource {
-  composition: Composition | null
-  pitcher: Pitcher
-  webAudio: IWebAudioAPI | null
-}
-
 interface SubscribeToCompositionUpdatesFxParams {
   isPlaying: boolean;
   composition: Composition;
 }
 
+interface RepeatCompositionSource {
+  composition: Composition | null
+  isRepeating: boolean
+}
 
+interface RepeatCompositionParams extends RepeatCompositionSource {
+  composition: Composition
+}
 
 type CheckCompositionFx = (composition: Composition) => void
 type SubscribeToCompositionUpdatesFx = (params: SubscribeToCompositionUpdatesFxParams) => void
@@ -35,10 +36,13 @@ export const $fraction = createStore<FractionWithIndex | null>(null)
 export const $tactIndex = createStore<number>(0)
 export const $frequency = createStore<Frequency>(0)
 export const $pitcher = createStore<Pitcher>(pitchers.ACF2PLUS)
+export const $isRepeating = createStore(true)
+export const $loopIndex = createStore(0);
 export const $isListening = $webAudio.map(Boolean)
 export const $scoreSource = combine({
   frequency: $frequency,
   tactIndex: $tactIndex,
+  loopIndex: $loopIndex,
   fraction: $fraction,
 })
 
@@ -46,6 +50,7 @@ export const fractionUpdated = createEvent<FractionWithIndex>()
 export const tactUpdated = createEvent<number>()
 export const compositionSelected = createEvent<Composition>()
 export const startCheckingFrequencyInBackground = createEvent()
+export const loopIncremented = createEvent()
 
 export const checkCompositionFx = createEffect<CheckCompositionFx>(
   (composition: Composition) => composition.play()
@@ -81,6 +86,13 @@ sample({
 })
 
 sample({
+  clock: loopIncremented,
+  source: $loopIndex,
+  fn: (i) => i + 1,
+  target: $loopIndex
+})
+
+sample({
   clock: checkCompositionFx.pending,
   source: $composition,
   filter: (composition: Composition | null): composition is Composition => !!composition,
@@ -93,6 +105,16 @@ sample({
   source: $composition,
   filter: Boolean,
   target: checkCompositionFx
+})
+
+sample({
+  clock: checkCompositionFx.done,
+  source: { isRepeating: $isRepeating, composition: $composition },
+  filter: (sourceData: RepeatCompositionSource): sourceData is RepeatCompositionParams => Boolean(
+    sourceData.isRepeating && sourceData.composition
+  ),
+  fn: ({ composition }) => composition,
+  target: [checkCompositionFx, loopIncremented]
 })
 
 sample({
@@ -154,15 +176,15 @@ sample({
 sample({
   clock: $scoreSource,
   filter: (source: UnitValue<typeof $scoreSource>): source is ScoreSource => !!source?.fraction?.unit,
-  fn: ({ fraction, frequency, tactIndex }): [ScoreString, Correctness] => {
+  fn: ({ fraction, frequency, tactIndex, loopIndex }): [ScoreString, Correctness] => {
     const status = isFrequencyCorrect(fraction.unit.frequency, frequency)
       ? 'success'
       : 'failed'
 
-    return [`${tactIndex}:${fraction.index}`, status];
+    return [`${loopIndex}:${tactIndex}:${fraction.index}`, status];
   },
   target: updateScore
 })
 
 // TODO: must be called from list of the compositions, initial is null
-compositionSelected(new Composition(SullaLulla)) 
+compositionSelected(new Composition(Osherov1)) 

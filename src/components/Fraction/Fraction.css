@@ -1,16 +1,30 @@
 .fraction {
-    font-size: 30px;
-    font-family: 'Hack', monospace;
-    line-height: 1;
-    position: relative;
+  font-size: 30px;
+  font-family: 'Hack', monospace;
+  line-height: 1;
+  position: relative;
 }
 
 .fraction p {
-    padding: 10px;
-    position: relative;
-    border-radius: 3px;
+  padding: 10px;
+  position: relative;
+  border-radius: 3px;
+}
+
+.fraction__symbol {
+  font-size: 60px;
+}
+
+.fraction__symbol_small {
+  font-size: 32px;
+}
+
+.fraction__unit {
+  height: 100%;
+  display: flex;
+  align-items: center;
 }
 
 .fraction_selected p {
-    background-color: #e0cebe;
+  background-color: #e0cebe;
 }

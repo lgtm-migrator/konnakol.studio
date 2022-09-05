@@ -1,10 +1,12 @@
 .tact {
-    display: grid;
-    justify-items: center;
-    grid-template-columns: repeat(auto-fit, minmax(0, 1fr));
+  display: grid;
+  justify-items: center;
+  grid-template-columns: repeat(auto-fit, minmax(0, 1fr));
+  border-bottom: 1px solid lightslategray;
+  padding-top: 20px;
 }
 
 .tact_selected {
-    background-color: #FEEAD9;
-    border-radius: 10px;
+  background-color: #FEEAD9;
+  border-radius: 10px;
 }

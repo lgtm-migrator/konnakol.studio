@@ -3,6 +3,8 @@ import "./App.css";
 import Tact from "./components/Tact";
 
 import {
+  enterBPMButtonClicked,
+  isRepeatingCheckboxChanged,
   listenButtonClicked,
   pitcherUpdated,
   playButtonClicked,
@@ -32,7 +34,7 @@ function App() {
   const currentTact = useStore($tactIndex);
   const currentFraction = useStore($fraction);
   const successScore = useStore($success);
-  const failedScore = useStore($failed);  
+  const failedScore = useStore($failed);
 
   const pitchersKeys = useMemo(() => Object.keys(pitchers), []);
 
@@ -67,7 +69,21 @@ function App() {
             >
               {isPlaying ? "Stop" : "Play"}
             </button>
-            <button disabled={!isListening}>Enter BPM ({bpm})</button>
+            <button
+              disabled={!isListening}
+              onClick={() => enterBPMButtonClicked()}
+            >
+              Enter BPM ({bpm})
+            </button>
+            <label>
+              Repeat
+              <input
+                type="checkbox"
+                onChange={({ target: { checked } }) =>
+                  isRepeatingCheckboxChanged(checked)
+                }
+              />
+            </label>
             <select
               value={pitcher.name}
               onChange={(e) => pitcherUpdated(e.target.value)}

@@ -22,7 +22,7 @@ export interface ICompositionState {
 }
 
 export interface IComposition extends ICompositionConfig {
-  play: (detectPitch: DetectPitchFn) => Promise<Composition>;
+  play: (bpm?: number) => Promise<Composition>;
 }
 
 export default class Composition implements IComposition {
@@ -43,8 +43,8 @@ export default class Composition implements IComposition {
     this.size = config.size
   }
 
-  public async play() {
-    this.iterator = this.transition()
+  public async play(bpm: number = this.bpm) {
+    this.iterator = this.transition(bpm)
 
     for await (const state of this.iterator) {
       this.listeners.forEach(onUpdate => onUpdate?.(state))
@@ -70,10 +70,10 @@ export default class Composition implements IComposition {
     return this
   }
 
-  private async *transition() {
+  private async *transition(bpm: number) {
     for (const [tactIndex, tact] of this.pattern.entries()) {
       for (const [fractionIndex, fraction] of tact.entries()) {
-        await sleep(this.interval)
+        await sleep(bpmToMilliseconds(bpm))
 
         yield this.constructCurrentState(
           tactIndex,
@@ -90,8 +90,4 @@ export default class Composition implements IComposition {
     tactIndex,
     fraction
   })
-
-  private get interval() {
-    return bpmToMilliseconds(this.bpm)
-  }
 }

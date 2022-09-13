@@ -1,17 +1,17 @@
-import { combine, createEffect, createEvent, createStore, sample, Store, UnitValue } from 'effector';
+import { combine, createEffect, createEvent, createStore, sample, UnitValue } from 'effector';
 import { DEFAULT_BPM } from '~/constants';
 import { Pitcher, pitchers } from '~/features/dojo/api/pitcher';
-import { IWebAudioAPI } from '~/features/dojo/api/web-audio';
-import { listenButtonClicked, pitcherUpdated, playButtonClicked, promptBPMFx, stopButtonClicked } from '~/features/dojo/ui';
+import { isRepeatingCheckboxChanged, listenButtonClicked, pitcherUpdated, playButtonClicked, promptBPMFx, stopButtonClicked } from '~/features/dojo/ui';
 import Composition from '~/entities/composition/model';
 import * as validation from '~/features/dojo/ui/validation';
 import { FractionWithIndex } from '~/entities/fraction/model';
-import { Osherov1, SullaLulla } from '~/data/compositions';
+import { Osherov1 } from '~/data/compositions';
 import { $webAudio, detectPitchInBackgroundFx, DetectPitchInBackgroundFxParams, initializeWebAudioApiFx } from '../api';
 import { interval, reset } from 'patronum';
 import { Frequency } from '~/entities/unit/model';
 import { $score, Correctness, ScoreSource, ScoreString, updateScore } from './score';
 import { isFrequencyCorrect } from '~/utils/frequency.utils';
+import { NonNullableStructure } from '~/utils/types.utils';
 
 interface SubscribeToCompositionUpdatesFxParams {
   isPlaying: boolean;
@@ -21,13 +21,18 @@ interface SubscribeToCompositionUpdatesFxParams {
 interface RepeatCompositionSource {
   composition: Composition | null
   isRepeating: boolean
+  bpm: number
 }
 
-interface RepeatCompositionParams extends RepeatCompositionSource {
-  composition: Composition
+interface CheckCompositionSource {
+  composition: Composition | null
+  bpm: number
 }
 
-type CheckCompositionFx = (composition: Composition) => void
+type CheckCompositionParams = NonNullableStructure<CheckCompositionSource>
+type RepeatCompositionParams = NonNullableStructure<RepeatCompositionSource>
+
+type CheckCompositionFx = (params: CheckCompositionParams) => void
 type SubscribeToCompositionUpdatesFx = (params: SubscribeToCompositionUpdatesFxParams) => void
 
 export const $bpm = createStore(DEFAULT_BPM)
@@ -53,7 +58,7 @@ export const startCheckingFrequencyInBackground = createEvent()
 export const loopIncremented = createEvent()
 
 export const checkCompositionFx = createEffect<CheckCompositionFx>(
-  (composition: Composition) => composition.play()
+  ({ composition, bpm }) => composition.play(bpm)
 )
 
 export const subscribeToCompositionUpdatesFx = createEffect<SubscribeToCompositionUpdatesFx>(
@@ -86,6 +91,11 @@ sample({
 })
 
 sample({
+  clock: isRepeatingCheckboxChanged,
+  target: $isRepeating
+})
+
+sample({
   clock: loopIncremented,
   source: $loopIndex,
   fn: (i) => i + 1,
@@ -102,18 +112,18 @@ sample({
 
 sample({
   clock: playButtonClicked,
-  source: $composition,
-  filter: Boolean,
+  source: { composition: $composition, bpm: $bpm },
+  filter: (sourceData: CheckCompositionSource): sourceData is CheckCompositionParams => Boolean(sourceData.composition),
   target: checkCompositionFx
 })
 
 sample({
   clock: checkCompositionFx.done,
-  source: { isRepeating: $isRepeating, composition: $composition },
+  source: { isRepeating: $isRepeating, composition: $composition, bpm: $bpm },
   filter: (sourceData: RepeatCompositionSource): sourceData is RepeatCompositionParams => Boolean(
     sourceData.isRepeating && sourceData.composition
   ),
-  fn: ({ composition }) => composition,
+  fn: ({ composition, bpm }: RepeatCompositionParams) => ({ composition, bpm }),
   target: [checkCompositionFx, loopIncremented]
 })
 

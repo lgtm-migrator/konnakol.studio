@@ -1,23 +1,21 @@
 import "./Tact.css";
 
-import { IFraction } from "../../types/fraction.types";
-import Fraction from "../Fraction/Fraction";
+import Unit from "~/entities/unit/model/Unit";
+import UnitComponent from "~/components/Unit";
 
 interface ITactProps {
-  fractions: Array<IFraction>;
+  units: Unit[];
   selected: boolean;
-  selectedFraction?: number;
+  selectedUnitIndex: number;
 }
 
 function Tact(props: ITactProps) {
   return (
     <div className={`tact ${props.selected ? "tact_selected" : ""}`}>
-      {props.fractions.map((fr, i) => (
-        <Fraction
-          key={i}
-          symbol={fr.unit?.symbol}
-          color={fr.color}
-          selected={props.selected && props.selectedFraction === i}
+      {props.units.map((unit, i) => (
+        <UnitComponent
+          unit={unit}
+          selected={props.selectedUnitIndex === unit.index}
         />
       ))}
     </div>

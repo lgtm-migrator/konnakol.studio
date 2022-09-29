@@ -38,7 +38,7 @@ function App() {
 
   const pitchersKeys = useMemo(() => Object.keys(pitchers), []);
 
-  const expectedFrequency = currentFraction?.unit?.frequency ?? 0;
+  const [expectedFrequency = 0] = currentFraction?.possibleFrequencies ?? [];
 
   return (
     <main>
@@ -106,8 +106,8 @@ function App() {
               <Tact
                 key={i}
                 selected={isPlaying && currentTact === i}
-                selectedFraction={currentFraction?.index}
-                fractions={tact}
+                selectedUnitIndex={currentFraction?.index}
+                units={tact.units}
               />
             ))}
           </div>

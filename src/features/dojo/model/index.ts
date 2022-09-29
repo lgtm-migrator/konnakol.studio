@@ -4,14 +4,14 @@ import { Pitcher, pitchers } from '~/features/dojo/api/pitcher';
 import { isRepeatingCheckboxChanged, listenButtonClicked, pitcherUpdated, playButtonClicked, promptBPMFx, stopButtonClicked } from '~/features/dojo/ui';
 import Composition from '~/entities/composition/model';
 import * as validation from '~/features/dojo/ui/validation';
-import { FractionWithIndex } from '~/entities/fraction/model';
 import { Osherov1 } from '~/data/compositions';
 import { $webAudio, detectPitchInBackgroundFx, DetectPitchInBackgroundFxParams, initializeWebAudioApiFx } from '../api';
 import { interval, reset } from 'patronum';
-import { Frequency } from '~/entities/unit/model';
 import { $score, Correctness, ScoreSource, ScoreString, updateScore } from './score';
-import { isFrequencyCorrect } from '~/utils/frequency.utils';
+import { areFrequenciesCorrect, isFrequencyCorrect } from '~/utils/frequency.utils';
 import { NonNullableStructure } from '~/utils/types.utils';
+import { Frequency } from '~/types/fraction.types';
+import Fraction from '~/entities/unit/model/Fraction';
 
 interface SubscribeToCompositionUpdatesFxParams {
   isPlaying: boolean;
@@ -37,7 +37,7 @@ type SubscribeToCompositionUpdatesFx = (params: SubscribeToCompositionUpdatesFxP
 
 export const $bpm = createStore(DEFAULT_BPM)
 export const $composition = createStore<Composition | null>(null)
-export const $fraction = createStore<FractionWithIndex | null>(null)
+export const $fraction = createStore<Fraction | null>(null)
 export const $tactIndex = createStore<number>(0)
 export const $frequency = createStore<Frequency>(0)
 export const $pitcher = createStore<Pitcher>(pitchers.ACF2PLUS)
@@ -51,7 +51,7 @@ export const $scoreSource = combine({
   fraction: $fraction,
 })
 
-export const fractionUpdated = createEvent<FractionWithIndex>()
+export const fractionUpdated = createEvent<Fraction>()
 export const tactUpdated = createEvent<number>()
 export const compositionSelected = createEvent<Composition>()
 export const startCheckingFrequencyInBackground = createEvent()
@@ -185,9 +185,9 @@ sample({
 
 sample({
   clock: $scoreSource,
-  filter: (source: UnitValue<typeof $scoreSource>): source is ScoreSource => !!source?.fraction?.unit,
+  filter: (source: UnitValue<typeof $scoreSource>): source is ScoreSource => !!source.fraction,
   fn: ({ fraction, frequency, tactIndex, loopIndex }): [ScoreString, Correctness] => {
-    const status = isFrequencyCorrect(fraction.unit.frequency, frequency)
+    const status = areFrequenciesCorrect(fraction.possibleFrequencies, frequency)
       ? 'success'
       : 'failed'
 

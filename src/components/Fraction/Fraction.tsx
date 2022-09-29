@@ -1,12 +1,12 @@
 import "./Fraction.css";
 
-interface IFractionProps {
+interface IFractionComponentProps {
   symbol?: string;
   color?: string;
   selected: boolean;
 }
 
-function Fraction(props: IFractionProps) {
+function FractionComponent(props: IFractionComponentProps) {
   return (
     <div className={`fraction ${props.selected ? "fraction_selected" : ""}`}>
       <p className="fraction__unit" style={{ color: props.color }}>
@@ -18,4 +18,4 @@ function Fraction(props: IFractionProps) {
   );
 }
 
-export default Fraction;
+export default FractionComponent;

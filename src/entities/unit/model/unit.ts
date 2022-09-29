@@ -1,8 +1,14 @@
-export type Frequency = number
+import Fraction from './Fraction';
 
-export interface Unit {
-  symbol: string
-  frequency: Frequency
+export enum UnitKind {
+  Roll = 'roll',
+  Chord = 'chord',
+  Fraction = 'fraction'
 }
 
-export const createUnit = (symbol: string, frequency: Frequency): Unit => ({ frequency, symbol })
+export default interface Unit {
+  readonly kind: UnitKind
+  readonly index: number
+  readonly fractions: Fraction[] | null
+  play: (bpm: number) => AsyncGenerator<Fraction[]>
+}

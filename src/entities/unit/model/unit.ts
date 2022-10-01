@@ -1,3 +1,4 @@
+import { Frequency } from '~/types/fraction.types';
 import Fraction from './Fraction';
 
 export enum UnitKind {
@@ -11,4 +12,5 @@ export default interface Unit {
   readonly index: number
   readonly fractions: Fraction[] | null
   play: (bpm: number) => AsyncGenerator<Fraction[]>
+  check: (receivedFrequency: Frequency) => boolean
 }

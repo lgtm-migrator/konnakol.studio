@@ -14,12 +14,12 @@ import { pitchers } from "~/features/dojo/api/pitcher";
 import {
   $bpm,
   $composition,
-  $fraction,
   $frequency,
   $pitcher,
-  $tactIndex,
   $isListening,
   checkCompositionFx,
+  $tact,
+  $unit,
 } from "./features/dojo/model";
 import { useStore, useStoreMap } from "effector-react";
 import { $failed, $score, $success } from "./features/dojo/model/score";
@@ -31,14 +31,16 @@ function App() {
   const bpm = useStore($bpm);
   const isPlaying = useStore(checkCompositionFx.pending);
   const isListening = useStore($isListening);
-  const currentTact = useStore($tactIndex);
-  const currentFraction = useStore($fraction);
+  const tact = useStore($tact);
+  const unit = useStore($unit);
   const successScore = useStore($success);
   const failedScore = useStore($failed);
 
   const pitchersKeys = useMemo(() => Object.keys(pitchers), []);
 
-  const [expectedFrequency = 0] = currentFraction?.possibleFrequencies ?? [];
+  const expectedFrequencies = unit?.fractions?.flatMap(
+    ({ possibleFrequencies }) => possibleFrequencies
+  );
 
   return (
     <main>
@@ -49,7 +51,7 @@ function App() {
             <p className="composition__success">Success: {successScore}</p>
             <p className="composition__failed">Failed: {failedScore}</p>
             <p className="composition__frequency">
-              Expected: {expectedFrequency.toFixed(2)} Hz
+              Expected: {expectedFrequencies?.join('|')} Hz
             </p>
             <p className="composition__frequency">
               Received: {currentFrequency.toFixed(2)} Hz
@@ -102,12 +104,12 @@ function App() {
             ))}
           </div>
           <div className="composition__pattern">
-            {composition.pattern.map((tact, i) => (
+            {composition.pattern.map(({units}, i) => (
               <Tact
                 key={i}
-                selected={isPlaying && currentTact === i}
-                selectedUnitIndex={currentFraction?.index}
-                units={tact.units}
+                selected={isPlaying && tact?.index === i}
+                selectedUnitIndex={unit?.index}
+                units={units}
               />
             ))}
           </div>

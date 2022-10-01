@@ -4,14 +4,14 @@ import { Pitcher, pitchers } from '~/features/dojo/api/pitcher';
 import { isRepeatingCheckboxChanged, listenButtonClicked, pitcherUpdated, playButtonClicked, promptBPMFx, stopButtonClicked } from '~/features/dojo/ui';
 import Composition from '~/entities/composition/model';
 import * as validation from '~/features/dojo/ui/validation';
-import { Osherov1 } from '~/data/compositions';
 import { $webAudio, detectPitchInBackgroundFx, DetectPitchInBackgroundFxParams, initializeWebAudioApiFx } from '../api';
 import { interval, reset } from 'patronum';
 import { $score, Correctness, ScoreSource, ScoreString, updateScore } from './score';
-import { areFrequenciesCorrect, isFrequencyCorrect } from '~/utils/frequency.utils';
 import { NonNullableStructure } from '~/utils/types.utils';
 import { Frequency } from '~/types/fraction.types';
-import Fraction from '~/entities/unit/model/Fraction';
+import Osherov1 from '~/data/compositions/osherov';
+import Tact from '~/entities/composition/model/Tact';
+import Unit from '~/entities/unit/model/Unit';
 
 interface SubscribeToCompositionUpdatesFxParams {
   isPlaying: boolean;
@@ -37,8 +37,8 @@ type SubscribeToCompositionUpdatesFx = (params: SubscribeToCompositionUpdatesFxP
 
 export const $bpm = createStore(DEFAULT_BPM)
 export const $composition = createStore<Composition | null>(null)
-export const $fraction = createStore<Fraction | null>(null)
-export const $tactIndex = createStore<number>(0)
+export const $unit = createStore<Unit | null>(null)
+export const $tact = createStore<Tact | null>(null)
 export const $frequency = createStore<Frequency>(0)
 export const $pitcher = createStore<Pitcher>(pitchers.ACF2PLUS)
 export const $isRepeating = createStore(true)
@@ -46,13 +46,13 @@ export const $loopIndex = createStore(0);
 export const $isListening = $webAudio.map(Boolean)
 export const $scoreSource = combine({
   frequency: $frequency,
-  tactIndex: $tactIndex,
+  tact: $tact,
   loopIndex: $loopIndex,
-  fraction: $fraction,
+  unit: $unit,
 })
 
-export const fractionUpdated = createEvent<Fraction>()
-export const tactUpdated = createEvent<number>()
+export const unitUpdated = createEvent<Unit>()
+export const tactUpdated = createEvent<Tact>()
 export const compositionSelected = createEvent<Composition>()
 export const startCheckingFrequencyInBackground = createEvent()
 export const loopIncremented = createEvent()
@@ -64,12 +64,10 @@ export const checkCompositionFx = createEffect<CheckCompositionFx>(
 export const subscribeToCompositionUpdatesFx = createEffect<SubscribeToCompositionUpdatesFx>(
   ({ isPlaying, composition }) => {
     if (isPlaying) {
-      composition?.subscribe(
-        ({ fraction, tactIndex }) => {
-          fractionUpdated(fraction)
-          tactUpdated(tactIndex)
-        }
-      )
+      composition?.subscribe(({ tact, unit }) => {
+        tactUpdated(tact)
+        unitUpdated(unit)
+      })
     } else {
       composition?.unsubscribe()
     }
@@ -82,7 +80,7 @@ export const stopCheckingCompositionFx = createEffect(
 
 reset({
   clock: stopCheckingCompositionFx.done,
-  target: [$tactIndex, $fraction, $frequency, $score]
+  target: [$tact, $unit, $frequency, $score]
 })
 
 sample({
@@ -134,13 +132,13 @@ sample({
 })
 
 sample({
-  clock: fractionUpdated,
-  target: $fraction
+  clock: unitUpdated,
+  target: $unit
 })
 
 sample({
   clock: tactUpdated,
-  target: $tactIndex
+  target: $tact
 })
 
 sample({
@@ -185,13 +183,14 @@ sample({
 
 sample({
   clock: $scoreSource,
-  filter: (source: UnitValue<typeof $scoreSource>): source is ScoreSource => !!source.fraction,
-  fn: ({ fraction, frequency, tactIndex, loopIndex }): [ScoreString, Correctness] => {
-    const status = areFrequenciesCorrect(fraction.possibleFrequencies, frequency)
+  filter: (source: UnitValue<typeof $scoreSource>): source is ScoreSource => !!source.unit,
+  fn: ({ unit, frequency, tact, loopIndex }): [ScoreString, Correctness] => {
+
+    const status = unit.check(frequency)
       ? 'success'
       : 'failed'
 
-    return [`${loopIndex}:${tactIndex}:${fraction.index}`, status];
+    return [`${loopIndex}:${tact.index}:${unit.index}`, status];
   },
   target: updateScore
 })

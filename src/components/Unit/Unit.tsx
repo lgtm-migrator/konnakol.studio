@@ -9,7 +9,7 @@ interface IUnitProps {
   unit: Unit;
 }
 
-const Unit: React.FC<IUnitProps> = ({ unit, selected }) => {
+const UnitComponent: React.FC<IUnitProps> = ({ unit, selected }) => {
   switch (unit.kind) {
     case UnitKind.Fraction:
       return <Fraction selected={selected} />;
@@ -20,4 +20,4 @@ const Unit: React.FC<IUnitProps> = ({ unit, selected }) => {
   }
 };
 
-export default Unit;
+export default UnitComponent;

@@ -1,29 +1,31 @@
 import { Frequency } from '~/types/fraction.types';
 import { sleep } from '~/utils/common.utils';
 import { isFrequencyCorrect } from '~/utils/frequency.utils';
-import Unit, { UnitKind } from './Unit';
+import { UnitKind } from './shared';
+import Unit, { AnyUnit } from './Unit';
 
-interface FractionConfig {
-  possibleFrequencies: Frequency[]
+interface NoteConfig {
+  frequencies: Frequency[]
   symbol: string
   color?: string
 }
 
-export default class Fraction implements Unit {
-  kind = UnitKind.Fraction
-  fractions = null
+export const isNote = (unit: AnyUnit): unit is Note => unit instanceof Note
 
-  possibleFrequencies: Frequency[]
-
+export default class Note implements Unit<null> {
+  kind = UnitKind.Note
+  children = null
+  
+  frequencies: Frequency[]
   symbol: string
   color?: string
 
-  constructor(public readonly index: number, config: FractionConfig) {
-    if (config.possibleFrequencies.length > 1) {
+  constructor(public readonly index: number, config: NoteConfig) {
+    if (config.frequencies.length > 1) {
       throw new Error('Fraction can have one or no possible frequencies.')
     }
 
-    this.possibleFrequencies = config.possibleFrequencies
+    this.frequencies = config.frequencies
     this.color = config.color
     this.symbol = config.symbol
   }
@@ -34,7 +36,7 @@ export default class Fraction implements Unit {
   }
 
   check(receivedFrequency: Frequency) {
-    const [expectedFrequency = null] = this.possibleFrequencies
+    const [expectedFrequency = null] = this.frequencies
 
     if (!expectedFrequency) {
       return true;

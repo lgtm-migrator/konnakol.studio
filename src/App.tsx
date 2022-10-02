@@ -38,8 +38,8 @@ function App() {
 
   const pitchersKeys = useMemo(() => Object.keys(pitchers), []);
 
-  const expectedFrequencies = unit?.fractions?.flatMap(
-    ({ possibleFrequencies }) => possibleFrequencies
+  const expectedFrequencies = unit?.children?.flatMap(
+    ({ frequencies }) => frequencies
   );
 
   return (

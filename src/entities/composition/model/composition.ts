@@ -1,4 +1,4 @@
-import Unit from '~/entities/unit/model/Unit'
+import { AnyUnit } from '~/entities/unit/model/Unit'
 import { sleep } from '~/utils/common.utils'
 import { bpmToMilliseconds } from '~/utils/tempo.utils'
 import Tact from './Tact'
@@ -17,7 +17,7 @@ export interface ICompositionConfig {
 
 export interface ICompositionState {
   tact: Tact,
-  unit: Unit
+  unit: AnyUnit
 }
 
 export interface IComposition extends ICompositionConfig {

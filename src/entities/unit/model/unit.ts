@@ -1,16 +1,14 @@
 import { Frequency } from '~/types/fraction.types';
-import Fraction from './Fraction';
+import Note from './Note';
+import { UnitChildren, UnitKind } from './shared';
 
-export enum UnitKind {
-  Roll = 'roll',
-  Chord = 'chord',
-  Fraction = 'fraction'
-}
-
-export default interface Unit {
+export default interface Unit<Children extends UnitChildren> {
   readonly kind: UnitKind
+  readonly children: Children
   readonly index: number
-  readonly fractions: Fraction[] | null
-  play: (bpm: number) => AsyncGenerator<Fraction[]>
+  readonly symbol: string
+  play: (bpm: number) => AsyncGenerator<Note[]>
   check: (receivedFrequency: Frequency) => boolean
 }
+
+export type AnyUnit = Unit<UnitChildren>

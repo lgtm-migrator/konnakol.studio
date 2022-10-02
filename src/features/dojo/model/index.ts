@@ -11,7 +11,8 @@ import { NonNullableStructure } from '~/utils/types.utils';
 import { Frequency } from '~/types/fraction.types';
 import Osherov1 from '~/data/compositions/osherov';
 import Tact from '~/entities/composition/model/Tact';
-import Unit from '~/entities/unit/model/Unit';
+import Unit, { AnyUnit } from '~/entities/unit/model/Unit';
+import { UnitChildren } from '~/entities/unit/model/shared';
 
 interface SubscribeToCompositionUpdatesFxParams {
   isPlaying: boolean;
@@ -37,7 +38,7 @@ type SubscribeToCompositionUpdatesFx = (params: SubscribeToCompositionUpdatesFxP
 
 export const $bpm = createStore(DEFAULT_BPM)
 export const $composition = createStore<Composition | null>(null)
-export const $unit = createStore<Unit | null>(null)
+export const $unit = createStore<AnyUnit | null>(null)
 export const $tact = createStore<Tact | null>(null)
 export const $frequency = createStore<Frequency>(0)
 export const $pitcher = createStore<Pitcher>(pitchers.ACF2PLUS)
@@ -51,7 +52,7 @@ export const $scoreSource = combine({
   unit: $unit,
 })
 
-export const unitUpdated = createEvent<Unit>()
+export const unitUpdated = createEvent<AnyUnit>()
 export const tactUpdated = createEvent<Tact>()
 export const compositionSelected = createEvent<Composition>()
 export const startCheckingFrequencyInBackground = createEvent()

@@ -1,5 +1,5 @@
 const RollComponent = () => {
-  return <></>
+  return <div className="unit unit--roll"></div>
 }
 
 export default RollComponent

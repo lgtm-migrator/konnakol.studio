@@ -1,16 +1,13 @@
+import { Selectable } from "~/utils/types.utils";
 import "./Note.css";
 
-interface INoteComponentProps {
+interface INoteComponentProps extends Selectable {
   symbol: string;
   color?: string;
 }
 
 function NoteComponent({ color, symbol }: INoteComponentProps) {
-  return (
-    <div className="unit unit--note">
-      <span style={{ color }}>{symbol}</span>
-    </div>
-  );
+  return <span style={{ color }}>{symbol}</span>;
 }
 
 export default NoteComponent;

@@ -1,5 +1,4 @@
 import { Frequency } from '~/types/fraction.types';
-import Note from './Note';
 import { UnitChildren, UnitKind } from './shared';
 
 export default interface Unit<Children extends UnitChildren> {

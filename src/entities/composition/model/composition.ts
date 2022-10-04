@@ -8,11 +8,11 @@ type UpdateHandler = (state: ICompositionState) => void
 type Pattern = Tact[]
 
 export interface ICompositionConfig {
-  id: number
-  name: string
-  pattern: Pattern
-  bpm: number
-  size: number
+  readonly id: number
+  readonly name: string
+  readonly pattern: Pattern
+  readonly bpm: number
+  readonly size: number
 }
 
 export interface ICompositionState {
@@ -25,11 +25,11 @@ export interface IComposition extends ICompositionConfig {
 }
 
 export default class Composition implements IComposition {
-  public id: number
-  public name: string
-  public pattern: Pattern
-  public bpm: number
-  public size: number
+  public readonly id: number
+  public readonly name: string
+  public readonly pattern: Pattern
+  public readonly bpm: number
+  public readonly size: number
 
   private iterator: CompositionTransition | null = null
   private listeners: UpdateHandler[] = []
@@ -44,9 +44,8 @@ export default class Composition implements IComposition {
 
   public async play(bpm: number = this.bpm) {
     this.iterator = this.transition(bpm)
-    
+
     for await (const state of this.iterator) {
-      console.log(state)
       this.listeners.forEach(onUpdate => onUpdate?.(state))
     }
 

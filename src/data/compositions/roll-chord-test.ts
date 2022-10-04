@@ -8,7 +8,7 @@ import { DKurd } from '../instruments'
 const pattern = [
   new Tact(0, [
     new Fraction(0, { frequencies: [], symbol: '*' }),
-    new Fraction(1, { frequencies: [], symbol: '.', color: 'green' }),
+    new Fraction(1, { frequencies: [], symbol: '•', color: 'green' }),
     new Roll(2, [
       new Fraction(0, { frequencies: [DKurd.notes[1].frequency], symbol: '1', }),
       new Fraction(1, { frequencies: [DKurd.notes[3].frequency], symbol: '2', color: 'green' }),

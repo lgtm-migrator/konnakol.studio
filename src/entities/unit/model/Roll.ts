@@ -22,11 +22,10 @@ export default class Roll implements Unit<Note[]> {
     const interval = bpmToMilliseconds(bpm) / this.children.length
 
     for (const fraction of this.children) {
-      await sleep(interval)
       this.currentFraction = fraction
+      await sleep(interval)
     }
 
-    this.currentFraction = null
     return this
   }
 

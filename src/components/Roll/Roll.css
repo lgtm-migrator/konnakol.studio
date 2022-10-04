@@ -1,6 +1,9 @@
 .unit--roll {
-  display: grid;
-  grid-auto-flow: column;
-  grid-auto-columns: 1fr;
-  gap: 5px;
+  justify-content: center;
+  gap: 10px;
+}
+
+.unit--roll .unit--note {
+  width: auto;
+  font-size: 18px;
 }

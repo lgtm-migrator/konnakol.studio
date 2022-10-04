@@ -1,17 +1,18 @@
-import { combine, createEffect, createEvent, createStore, sample, UnitValue } from 'effector';
+import { attach, combine, createEffect, createEvent, createStore, sample, UnitValue } from 'effector';
 import { DEFAULT_BPM } from '~/constants';
 import { Pitcher, pitchers } from '~/features/dojo/api/pitcher';
 import { isRepeatingCheckboxChanged, listenButtonClicked, pitcherUpdated, playButtonClicked, promptBPMFx, stopButtonClicked } from '~/features/dojo/ui';
 import Composition from '~/entities/composition/model';
 import * as validation from '~/features/dojo/ui/validation';
 import { $webAudio, detectPitchInBackgroundFx, DetectPitchInBackgroundFxParams, initializeWebAudioApiFx } from '../api';
-import { condition, interval, reset, spread } from 'patronum';
+import { and, condition, delay, either, interval, not, reset, spread } from 'patronum';
 import { $score, Correctness, ScoreSource, ScoreString, updateScore } from './score';
 import { NonNullableStructure } from '~/utils/types.utils';
 import { Frequency } from '~/types/fraction.types';
 import Tact from '~/entities/composition/model/Tact';
 import { AnyUnit } from '~/entities/unit/model/Unit';
 import RollChordTest from '~/data/compositions/roll-chord-test';
+import { bpmToMilliseconds } from '~/utils/tempo.utils';
 
 interface RepeatCompositionSource {
   composition: Composition | null
@@ -60,21 +61,22 @@ export const $scoreSource = combine({
   loopIndex: $loopIndex,
   unit: $unit,
 })
-export const $isPlaying = playCompositionFx.pending
-
+export const $isPlaying = and($composition, playCompositionFx.pending)
 export const startCheckingFrequencyInBackground = createEvent()
 export const unitUpdated = createEvent<AnyUnit>()
 export const tactUpdated = createEvent<Tact>()
 export const loopIncremented = createEvent()
 export const compositionSelected = createEvent<Composition>()
 export const compositionUpdated = spread({ targets: { unit: unitUpdated, tact: tactUpdated } })
-
-unitUpdated.watch(unit => console.log({ unit }))
-tactUpdated.watch(tact => console.log({ tact }))
-compositionUpdated.watch(state => console.log({ state }))
+export const compositionSubscribed = createEvent()
+export const compositionUnsubscribed = createEvent()
+export const compositionFinished = delay({
+  source: playCompositionFx.done,
+  timeout: $bpm.map(bpmToMilliseconds)
+})
 
 reset({
-  clock: playCompositionFx.done,
+  clock: compositionFinished,
   target: [$tact, $unit, $frequency, $score]
 })
 
@@ -88,11 +90,30 @@ sample({
   target: $isRepeating
 })
 
-condition({
+sample({
+  clock: $isPlaying,
+  filter: Boolean,
+  target: compositionSubscribed
+})
+
+sample({
+  clock: $isPlaying,
+  filter: (v) => !Boolean(v),
+  target: compositionUnsubscribed
+})
+
+sample({
+  clock: compositionSubscribed,
   source: $composition,
-  if: $isPlaying,
-  then: subscribeCompositionUpdatesFx,
-  else: unsubscribeCompositionUpdatesFx
+  filter: Boolean,
+  target: subscribeCompositionUpdatesFx
+})
+
+sample({
+  clock: compositionUnsubscribed,
+  source: $composition,
+  filter: Boolean,
+  target: unsubscribeCompositionUpdatesFx
 })
 
 sample({
@@ -179,15 +200,12 @@ sample({
   clock: $scoreSource,
   filter: (source: UnitValue<typeof $scoreSource>): source is ScoreSource => !!source.unit,
   fn: ({ unit, frequency, tact, loopIndex }): [ScoreString, Correctness] => {
-
-    const status = unit.check(frequency)
-      ? 'success'
-      : 'failed'
+    const status = unit.check(frequency) ? 'success' : 'failed'
 
     return [`${loopIndex}:${tact.index}:${unit.index}`, status];
   },
   target: updateScore
 })
 
-// TODO: must be called from list of the compositions, initial is null
+// TO DO: must be called from list of the compositions, initial is null
 compositionSelected(new Composition(RollChordTest)) 

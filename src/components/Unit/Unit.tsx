@@ -6,26 +6,33 @@ import Roll from "~/components/Roll";
 import { AnyUnit } from "~/entities/unit/model/Unit";
 import { isChord, isNote, isRoll } from "~/entities/unit/model";
 
-
 interface IUnitProps {
   selected: boolean;
   unit: AnyUnit;
 }
 
 const UnitComponent: React.FC<IUnitProps> = ({ unit, selected }) => {
+  let component = <div>???</div>;
+
   if (isNote(unit)) {
-    return <Note symbol={unit.symbol} color={unit.color} />;
+    component = <Note symbol={unit.symbol} color={unit.color} />;
   }
 
   if (isChord(unit)) {
-    return <Chord notes={unit.children} />;
+    component = <Chord notes={unit.children} />;
   }
 
   if (isRoll(unit)) {
-    return <Roll notes={unit.children} />;
+    component = <Roll notes={unit.children} />;
   }
 
-  return <div>???</div>;
+  return (
+    <div
+      className={`unit unit--${unit.kind} ${selected ? "unit--selected" : ""}`}
+    >
+      {component}
+    </div>
+  );
 };
 
 export default UnitComponent;

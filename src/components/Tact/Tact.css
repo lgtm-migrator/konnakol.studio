@@ -1,6 +1,7 @@
 .tact {
   display: grid;
   justify-items: center;
+  align-items: center;
   grid-template-columns: repeat(auto-fit, minmax(0, 1fr));
   border-bottom: 1px solid lightslategray;
   padding-top: 20px;

@@ -7,7 +7,7 @@ export default interface Unit<Children extends UnitChildren> {
   readonly children: Children
   readonly index: number
   readonly symbol: string
-  play: (bpm: number) => AsyncGenerator<Note[]>
+  play: (bpm: number) => Promise<Unit<Children>>
   check: (receivedFrequency: Frequency) => boolean
 }
 

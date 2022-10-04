@@ -23,10 +23,10 @@ export default class Chord implements Unit<ChordNotes> {
     return `(${this.children.map(({ symbol }) => symbol).join('|')})`
   }
 
-  async *play(bpm: number) {
+  async play(bpm: number) {
     const interval = bpmToMilliseconds(bpm)
     await sleep(interval)
-    yield this.children
+    return this
   }
 
   check(receivedFrequency: Frequency) {

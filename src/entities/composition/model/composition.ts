@@ -44,8 +44,9 @@ export default class Composition implements IComposition {
 
   public async play(bpm: number = this.bpm) {
     this.iterator = this.transition(bpm)
-
+    
     for await (const state of this.iterator) {
+      console.log(state)
       this.listeners.forEach(onUpdate => onUpdate?.(state))
     }
 
@@ -72,11 +73,8 @@ export default class Composition implements IComposition {
   private async *transition(bpm: number): CompositionTransition {
     for (const tact of this.pattern) {
       for (const unit of tact.units) {
-        await sleep(bpmToMilliseconds(bpm))
-        yield {
-          tact,
-          unit
-        }
+        await unit.play(bpm)
+        yield { unit, tact }
       }
     }
   }

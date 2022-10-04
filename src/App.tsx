@@ -17,20 +17,22 @@ import {
   $frequency,
   $pitcher,
   $isListening,
-  checkCompositionFx,
   $tact,
   $unit,
+  $isPlaying,
+  $isRepeating,
 } from "./features/dojo/model";
-import { useStore, useStoreMap } from "effector-react";
-import { $failed, $score, $success } from "./features/dojo/model/score";
+import { useStore } from "effector-react";
+import { $failed,  $success } from "./features/dojo/model/score";
 
 function App() {
   const composition = useStore($composition);
   const pitcher = useStore($pitcher);
   const currentFrequency = useStore($frequency);
   const bpm = useStore($bpm);
-  const isPlaying = useStore(checkCompositionFx.pending);
+  const isPlaying = useStore($isPlaying);
   const isListening = useStore($isListening);
+  const isRepeating = useStore($isRepeating);
   const tact = useStore($tact);
   const unit = useStore($unit);
   const successScore = useStore($success);
@@ -81,6 +83,7 @@ function App() {
               Repeat
               <input
                 type="checkbox"
+                checked={isRepeating}
                 onChange={({ target: { checked } }) =>
                   isRepeatingCheckboxChanged(checked)
                 }

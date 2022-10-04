@@ -4,7 +4,9 @@ import { areFrequenciesCorrect } from '~/utils/frequency.utils';
 import { bpmToMilliseconds } from '~/utils/tempo.utils';
 import Note from './Note';
 import { UnitKind } from './shared';
-import Unit from './Unit';
+import Unit, { AnyUnit } from './Unit';
+
+export const isRoll = (unit: AnyUnit): unit is Roll => unit instanceof Roll
 
 export default class Roll implements Unit<Note[]> {
   public readonly kind = UnitKind.Roll
@@ -16,16 +18,16 @@ export default class Roll implements Unit<Note[]> {
     return `[${this.children.map(({ symbol }) => symbol).join(',')}]`
   }
 
-  async *play(bpm: number) {
+  async play(bpm: number) {
     const interval = bpmToMilliseconds(bpm) / this.children.length
 
     for (const fraction of this.children) {
       await sleep(interval)
-      yield [fraction]
       this.currentFraction = fraction
     }
 
     this.currentFraction = null
+    return this
   }
 
   check(receivedFrequency: Frequency) {

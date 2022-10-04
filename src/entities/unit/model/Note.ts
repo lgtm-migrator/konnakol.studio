@@ -1,6 +1,7 @@
 import { Frequency } from '~/types/fraction.types';
 import { sleep } from '~/utils/common.utils';
 import { isFrequencyCorrect } from '~/utils/frequency.utils';
+import { bpmToMilliseconds } from '~/utils/tempo.utils';
 import { UnitKind } from './shared';
 import Unit, { AnyUnit } from './Unit';
 
@@ -15,7 +16,7 @@ export const isNote = (unit: AnyUnit): unit is Note => unit instanceof Note
 export default class Note implements Unit<null> {
   kind = UnitKind.Note
   children = null
-  
+
   frequencies: Frequency[]
   symbol: string
   color?: string
@@ -30,9 +31,10 @@ export default class Note implements Unit<null> {
     this.symbol = config.symbol
   }
 
-  async *play(bpm: number) {
-    await sleep(bpm)
-    yield [this]
+  async play(bpm: number) {
+    const interval = bpmToMilliseconds(bpm)
+    await sleep(interval)
+    return this
   }
 
   check(receivedFrequency: Frequency) {

@@ -5,19 +5,13 @@ import { isRepeatingCheckboxChanged, listenButtonClicked, pitcherUpdated, playBu
 import Composition from '~/entities/composition/model';
 import * as validation from '~/features/dojo/ui/validation';
 import { $webAudio, detectPitchInBackgroundFx, DetectPitchInBackgroundFxParams, initializeWebAudioApiFx } from '../api';
-import { interval, reset } from 'patronum';
+import { condition, interval, reset, spread } from 'patronum';
 import { $score, Correctness, ScoreSource, ScoreString, updateScore } from './score';
 import { NonNullableStructure } from '~/utils/types.utils';
 import { Frequency } from '~/types/fraction.types';
-import Osherov1 from '~/data/compositions/osherov';
 import Tact from '~/entities/composition/model/Tact';
-import Unit, { AnyUnit } from '~/entities/unit/model/Unit';
-import { UnitChildren } from '~/entities/unit/model/shared';
-
-interface SubscribeToCompositionUpdatesFxParams {
-  isPlaying: boolean;
-  composition: Composition;
-}
+import { AnyUnit } from '~/entities/unit/model/Unit';
+import RollChordTest from '~/data/compositions/roll-chord-test';
 
 interface RepeatCompositionSource {
   composition: Composition | null
@@ -34,7 +28,22 @@ type CheckCompositionParams = NonNullableStructure<CheckCompositionSource>
 type RepeatCompositionParams = NonNullableStructure<RepeatCompositionSource>
 
 type CheckCompositionFx = (params: CheckCompositionParams) => void
-type SubscribeToCompositionUpdatesFx = (params: SubscribeToCompositionUpdatesFxParams) => void
+
+export const subscribeCompositionUpdatesFx = createEffect(
+  (composition: Composition) => composition.subscribe(compositionUpdated)
+)
+
+export const unsubscribeCompositionUpdatesFx = createEffect(
+  (composition: Composition) => composition.unsubscribe()
+)
+
+export const playCompositionFx = createEffect<CheckCompositionFx>(
+  ({ composition, bpm }) => composition.play(bpm)
+)
+
+export const stopCompositionFx = createEffect(
+  (composition: Composition) => composition.stop()
+)
 
 export const $bpm = createStore(DEFAULT_BPM)
 export const $composition = createStore<Composition | null>(null)
@@ -42,7 +51,7 @@ export const $unit = createStore<AnyUnit | null>(null)
 export const $tact = createStore<Tact | null>(null)
 export const $frequency = createStore<Frequency>(0)
 export const $pitcher = createStore<Pitcher>(pitchers.ACF2PLUS)
-export const $isRepeating = createStore(true)
+export const $isRepeating = createStore(false)
 export const $loopIndex = createStore(0);
 export const $isListening = $webAudio.map(Boolean)
 export const $scoreSource = combine({
@@ -51,36 +60,21 @@ export const $scoreSource = combine({
   loopIndex: $loopIndex,
   unit: $unit,
 })
+export const $isPlaying = playCompositionFx.pending
 
+export const startCheckingFrequencyInBackground = createEvent()
 export const unitUpdated = createEvent<AnyUnit>()
 export const tactUpdated = createEvent<Tact>()
-export const compositionSelected = createEvent<Composition>()
-export const startCheckingFrequencyInBackground = createEvent()
 export const loopIncremented = createEvent()
+export const compositionSelected = createEvent<Composition>()
+export const compositionUpdated = spread({ targets: { unit: unitUpdated, tact: tactUpdated } })
 
-export const checkCompositionFx = createEffect<CheckCompositionFx>(
-  ({ composition, bpm }) => composition.play(bpm)
-)
-
-export const subscribeToCompositionUpdatesFx = createEffect<SubscribeToCompositionUpdatesFx>(
-  ({ isPlaying, composition }) => {
-    if (isPlaying) {
-      composition?.subscribe(({ tact, unit }) => {
-        tactUpdated(tact)
-        unitUpdated(unit)
-      })
-    } else {
-      composition?.unsubscribe()
-    }
-  }
-)
-
-export const stopCheckingCompositionFx = createEffect(
-  (composition: Composition) => composition.stop()
-)
+unitUpdated.watch(unit => console.log({ unit }))
+tactUpdated.watch(tact => console.log({ tact }))
+compositionUpdated.watch(state => console.log({ state }))
 
 reset({
-  clock: stopCheckingCompositionFx.done,
+  clock: playCompositionFx.done,
   target: [$tact, $unit, $frequency, $score]
 })
 
@@ -94,6 +88,13 @@ sample({
   target: $isRepeating
 })
 
+condition({
+  source: $composition,
+  if: $isPlaying,
+  then: subscribeCompositionUpdatesFx,
+  else: unsubscribeCompositionUpdatesFx
+})
+
 sample({
   clock: loopIncremented,
   source: $loopIndex,
@@ -102,28 +103,20 @@ sample({
 })
 
 sample({
-  clock: checkCompositionFx.pending,
-  source: $composition,
-  filter: (composition: Composition | null): composition is Composition => !!composition,
-  fn: (composition, isPlaying) => ({ composition, isPlaying }),
-  target: subscribeToCompositionUpdatesFx
-})
-
-sample({
   clock: playButtonClicked,
   source: { composition: $composition, bpm: $bpm },
   filter: (sourceData: CheckCompositionSource): sourceData is CheckCompositionParams => Boolean(sourceData.composition),
-  target: checkCompositionFx
+  target: playCompositionFx
 })
 
 sample({
-  clock: checkCompositionFx.done,
+  clock: playCompositionFx.done,
   source: { isRepeating: $isRepeating, composition: $composition, bpm: $bpm },
   filter: (sourceData: RepeatCompositionSource): sourceData is RepeatCompositionParams => Boolean(
     sourceData.isRepeating && sourceData.composition
   ),
   fn: ({ composition, bpm }: RepeatCompositionParams) => ({ composition, bpm }),
-  target: [checkCompositionFx, loopIncremented]
+  target: [playCompositionFx, loopIncremented]
 })
 
 sample({
@@ -158,7 +151,7 @@ sample({
   clock: stopButtonClicked,
   source: $composition,
   filter: Boolean,
-  target: stopCheckingCompositionFx
+  target: stopCompositionFx
 })
 
 const { tick } = interval({
@@ -197,4 +190,4 @@ sample({
 })
 
 // TODO: must be called from list of the compositions, initial is null
-compositionSelected(new Composition(Osherov1)) 
+compositionSelected(new Composition(RollChordTest)) 

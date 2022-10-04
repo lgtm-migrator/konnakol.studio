@@ -18,15 +18,14 @@ export default class Roll implements Unit<Note[]> {
     return `[${this.children.map(({ symbol }) => symbol).join(',')}]`
   }
 
-  async play(bpm: number) {
+  async *play(bpm: number) {
     const interval = bpmToMilliseconds(bpm) / this.children.length
 
-    for (const fraction of this.children) {
-      this.currentFraction = fraction
+    for (const currentFraction of this.children) {
       await sleep(interval)
+      this.currentFraction = currentFraction
+      yield this.currentFraction
     }
-
-    return this
   }
 
   check(receivedFrequency: Frequency) {

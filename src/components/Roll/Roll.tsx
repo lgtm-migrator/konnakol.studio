@@ -10,8 +10,8 @@ interface IRollComponentProps extends Selectable {
 const RollComponent: React.FC<IRollComponentProps> = ({ notes }) => {
   return (
     <>
-      {notes.map(({ symbol, color, index }) => (
-        <NoteComponent symbol={symbol} color={color} key={index} />
+      {notes.map(({ symbol, color }, i) => (
+        <NoteComponent symbol={symbol} color={color} key={i} />
       ))}
     </>
   );

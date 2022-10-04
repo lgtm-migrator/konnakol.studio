@@ -31,10 +31,10 @@ export default class Note implements Unit<null> {
     this.symbol = config.symbol
   }
 
-  async play(bpm: number) {
+  async *play(bpm: number) {
     const interval = bpmToMilliseconds(bpm)
     await sleep(interval)
-    return this
+    yield this
   }
 
   check(receivedFrequency: Frequency) {

@@ -75,6 +75,8 @@ export const compositionFinished = delay({
   timeout: $bpm.map(bpmToMilliseconds)
 })
 
+$unit.watch(unit => console.log({unit}))
+
 reset({
   clock: compositionFinished,
   target: [$tact, $unit, $frequency, $score]

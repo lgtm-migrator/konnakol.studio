@@ -72,8 +72,10 @@ export default class Composition implements IComposition {
   private async *transition(bpm: number): CompositionTransition {
     for (const tact of this.pattern) {
       for (const unit of tact.units) {
-        await unit.play(bpm)
-        yield { unit, tact }
+        const iterator = unit.play(bpm)
+        for await (const fraction of iterator) {
+          yield { unit: fraction, tact } // TODO: refactor naming
+        }
       }
     }
   }

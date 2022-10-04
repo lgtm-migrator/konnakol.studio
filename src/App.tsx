@@ -14,31 +14,40 @@ import { pitchers } from "~/features/dojo/api/pitcher";
 import {
   $bpm,
   $composition,
-  $fraction,
   $frequency,
   $pitcher,
-  $tactIndex,
   $isListening,
-  checkCompositionFx,
+  $tact,
+  $unit,
+  $isPlaying,
+  $isRepeating,
 } from "./features/dojo/model";
-import { useStore, useStoreMap } from "effector-react";
-import { $failed, $score, $success } from "./features/dojo/model/score";
+import { useStore } from "effector-react";
+import { $failed, $success } from "./features/dojo/model/score";
+import { isNote } from "./entities/unit/model";
 
 function App() {
   const composition = useStore($composition);
   const pitcher = useStore($pitcher);
   const currentFrequency = useStore($frequency);
   const bpm = useStore($bpm);
-  const isPlaying = useStore(checkCompositionFx.pending);
+  const isPlaying = useStore($isPlaying);
   const isListening = useStore($isListening);
-  const currentTact = useStore($tactIndex);
-  const currentFraction = useStore($fraction);
+  const isRepeating = useStore($isRepeating);
+  const tact = useStore($tact);
+  const unit = useStore($unit);
   const successScore = useStore($success);
   const failedScore = useStore($failed);
 
   const pitchersKeys = useMemo(() => Object.keys(pitchers), []);
 
-  const expectedFrequency = currentFraction?.unit?.frequency ?? 0;
+  const expectedFrequencies = useMemo(
+    () =>
+      unit && isNote(unit)
+        ? unit.frequencies
+        : unit?.children?.flatMap(({ frequencies }) => frequencies),
+    [unit]
+  );
 
   return (
     <main>
@@ -49,7 +58,7 @@ function App() {
             <p className="composition__success">Success: {successScore}</p>
             <p className="composition__failed">Failed: {failedScore}</p>
             <p className="composition__frequency">
-              Expected: {expectedFrequency.toFixed(2)} Hz
+              Expected: {expectedFrequencies?.join("|")} Hz
             </p>
             <p className="composition__frequency">
               Received: {currentFrequency.toFixed(2)} Hz
@@ -79,6 +88,7 @@ function App() {
               Repeat
               <input
                 type="checkbox"
+                checked={isRepeating}
                 onChange={({ target: { checked } }) =>
                   isRepeatingCheckboxChanged(checked)
                 }
@@ -102,12 +112,12 @@ function App() {
             ))}
           </div>
           <div className="composition__pattern">
-            {composition.pattern.map((tact, i) => (
+            {composition.pattern.map(({ units, index }) => (
               <Tact
-                key={i}
-                selected={isPlaying && currentTact === i}
-                selectedFraction={currentFraction?.index}
-                fractions={tact}
+                key={index}
+                selected={tact?.index === index}
+                selectedUnitIndex={unit?.index}
+                units={units}
               />
             ))}
           </div>

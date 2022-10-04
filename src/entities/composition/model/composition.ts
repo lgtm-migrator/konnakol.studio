@@ -1,24 +1,23 @@
-import { FractionWithIndex, Pattern } from '~/entities/fraction/model'
-import { Frequency } from '~/entities/unit/model'
+import { AnyUnit } from '~/entities/unit/model/Unit'
 import { sleep } from '~/utils/common.utils'
 import { bpmToMilliseconds } from '~/utils/tempo.utils'
-import { isFrequencyCorrect } from './utils'
+import Tact from './Tact'
 
-type DetectPitchFn = () => Frequency | null
 type CompositionTransition = AsyncGenerator<ICompositionState>
 type UpdateHandler = (state: ICompositionState) => void
+type Pattern = Tact[]
 
 export interface ICompositionConfig {
-  id: number
-  name: string
-  pattern: Pattern
-  bpm: number
-  size: number
+  readonly id: number
+  readonly name: string
+  readonly pattern: Pattern
+  readonly bpm: number
+  readonly size: number
 }
 
 export interface ICompositionState {
-  tactIndex: number
-  fraction: FractionWithIndex
+  tact: Tact,
+  unit: AnyUnit
 }
 
 export interface IComposition extends ICompositionConfig {
@@ -26,11 +25,11 @@ export interface IComposition extends ICompositionConfig {
 }
 
 export default class Composition implements IComposition {
-  public id: number
-  public name: string
-  public pattern: Pattern
-  public bpm: number
-  public size: number
+  public readonly id: number
+  public readonly name: string
+  public readonly pattern: Pattern
+  public readonly bpm: number
+  public readonly size: number
 
   private iterator: CompositionTransition | null = null
   private listeners: UpdateHandler[] = []
@@ -70,24 +69,12 @@ export default class Composition implements IComposition {
     return this
   }
 
-  private async *transition(bpm: number) {
-    for (const [tactIndex, tact] of this.pattern.entries()) {
-      for (const [fractionIndex, fraction] of tact.entries()) {
-        await sleep(bpmToMilliseconds(bpm))
-
-        yield this.constructCurrentState(
-          tactIndex,
-          { ...fraction, index: fractionIndex },
-        )
+  private async *transition(bpm: number): CompositionTransition {
+    for (const tact of this.pattern) {
+      for (const unit of tact.units) {
+        await unit.play(bpm)
+        yield { unit, tact }
       }
     }
   }
-
-  private constructCurrentState = (
-    tactIndex: number,
-    fraction: FractionWithIndex
-  ): ICompositionState => ({
-    tactIndex,
-    fraction
-  })
 }

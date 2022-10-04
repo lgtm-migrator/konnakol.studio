@@ -1,6 +1,7 @@
 import { createEvent, createStore, sample, Store } from 'effector';
-import { FractionWithIndex } from '~/entities/fraction/model';
-import { Frequency, Unit } from '~/entities/unit/model';
+import Tact from '~/entities/composition/model/Tact';
+import { AnyUnit } from '~/entities/unit/model/Unit';
+import { Frequency } from '~/types/fraction.types';
 
 export type TactIndex = number
 export type FractionIndex = number
@@ -12,8 +13,8 @@ export type CheckedFractions = Record<ScoreString, Correctness>
 export interface ScoreSource {
   frequency: Frequency
   loopIndex: LoopIndex
-  tactIndex: TactIndex
-  fraction: FractionWithIndex<Unit>
+  tact: Tact
+  unit: AnyUnit
 }
 
 export const $score = createStore<CheckedFractions>({})

@@ -1,8 +1,13 @@
-export type Frequency = number
+import { Frequency } from '~/types/fraction.types';
+import { UnitChildren, UnitKind } from './shared';
 
-export interface Unit {
-  symbol: string
-  frequency: Frequency
+export default interface Unit<Children extends UnitChildren> {
+  readonly kind: UnitKind
+  readonly children: Children
+  readonly index: number
+  readonly symbol: string
+  play: (bpm: number) => Promise<Unit<Children>>
+  check: (receivedFrequency: Frequency) => boolean
 }
 
-export const createUnit = (symbol: string, frequency: Frequency): Unit => ({ frequency, symbol })
+export type AnyUnit = Unit<UnitChildren>

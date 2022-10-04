@@ -1,5 +1,5 @@
 {
-  "name": "handpanistan",
+  "name": "konnakol.studio",
   "version": "0.1.0",
   "private": true,
   "dependencies": {
@@ -23,8 +23,8 @@
   },
   "scripts": {
     "start": "craco start",
-    "build": "build build",
-    "test": "test test"
+    "build": "craco build",
+    "test": "craco test"
   },
   "eslintConfig": {
     "extends": [

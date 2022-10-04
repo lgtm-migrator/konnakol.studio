@@ -1,6 +1,6 @@
+import Note from '~/entities/unit/model/Note'
+import { Fraction } from '~/entities/unit/model/shared'
 import { AnyUnit } from '~/entities/unit/model/Unit'
-import { sleep } from '~/utils/common.utils'
-import { bpmToMilliseconds } from '~/utils/tempo.utils'
 import Tact from './Tact'
 
 type CompositionTransition = AsyncGenerator<ICompositionState>
@@ -17,7 +17,7 @@ export interface ICompositionConfig {
 
 export interface ICompositionState {
   tact: Tact,
-  unit: AnyUnit
+  fraction: Fraction
 }
 
 export interface IComposition extends ICompositionConfig {
@@ -72,9 +72,9 @@ export default class Composition implements IComposition {
   private async *transition(bpm: number): CompositionTransition {
     for (const tact of this.pattern) {
       for (const unit of tact.units) {
-        const iterator = unit.play(bpm)
-        for await (const fraction of iterator) {
-          yield { unit: fraction, tact } // TODO: refactor naming
+        const fractions = unit.play(bpm)
+        for await (const fraction of fractions) {
+          yield { fraction, tact }
         }
       }
     }

@@ -1,3 +1,4 @@
+import Chord from './Chord';
 import Note from './Note';
 
 export type ChordNotes =
@@ -12,3 +13,5 @@ export enum UnitKind {
 }
 
 export type UnitChildren = ChordNotes | Note[] | null
+
+export type Fraction = Chord | Note

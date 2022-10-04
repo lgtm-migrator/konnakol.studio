@@ -18,9 +18,9 @@ import {
   $pitcher,
   $isListening,
   $tact,
-  $unit,
   $isPlaying,
   $isRepeating,
+  $fraction,
 } from "./features/dojo/model";
 import { useStore } from "effector-react";
 import { $failed, $success } from "./features/dojo/model/score";
@@ -35,18 +35,15 @@ function App() {
   const isListening = useStore($isListening);
   const isRepeating = useStore($isRepeating);
   const tact = useStore($tact);
-  const unit = useStore($unit);
+  const fraction = useStore($fraction);
   const successScore = useStore($success);
   const failedScore = useStore($failed);
 
   const pitchersKeys = useMemo(() => Object.keys(pitchers), []);
 
   const expectedFrequencies = useMemo(
-    () =>
-      unit && isNote(unit)
-        ? unit.frequencies
-        : unit?.children?.flatMap(({ frequencies }) => frequencies),
-    [unit]
+    () => fraction?.children?.flatMap(({ frequencies }) => frequencies),
+    [fraction]
   );
 
   return (
@@ -116,7 +113,7 @@ function App() {
               <Tact
                 key={index}
                 selected={tact?.index === index}
-                selectedUnitIndex={unit?.index}
+                selectedUnitIndex={fraction?.index}
                 units={units}
               />
             ))}

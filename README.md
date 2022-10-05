@@ -1,3 +1,5 @@
+![example workflow](https://github.com/agmitron/handpanistan/actions/workflows/hello.yml/badge.svg)
+
 # Konnakol studio
 
 > Konnakol (also spelled Konokol, Konakkol, Konnakkol) is the art of performing percussion syllables vocally in South Indian Carnatic music. Konnakol is the spoken component of solkattu, which refers to a combination of konnakol syllables spoken while simultaneously counting the tala (meter) with the hand.It is comparable[citation needed] in some respects to bol in Hindustani music, but allows the composition, performance or communication of rhythms. - Wikipedia
@@ -22,3 +24,4 @@ Other features will be implemented soon, check the [roadmap section](#roadmap).
 - [] - The library of arrangements `in progress`
 - [] - Editor to create your own arrangements
 - [] - Marketplace 
+

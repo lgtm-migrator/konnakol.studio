@@ -1,5 +1,6 @@
 import Unit from '~/entities/unit/model/Unit'
 import Tact from './Tact'
+import { CompositionSchema } from './types'
 
 type CompositionTransition = AsyncGenerator<ICompositionState>
 type UpdateHandler = (state: ICompositionState) => void
@@ -66,6 +67,16 @@ export default class Composition implements IComposition {
   public unsubscribe() {
     this.listeners = []
     return this
+  }
+
+  public stringify() {
+    return JSON.stringify({
+      id: this.id,
+      bpm: this.bpm,
+      name: this.name,
+      pattern: this.pattern,
+      size: this.size
+    })
   }
 
   private async *transition(bpm: number): CompositionTransition {

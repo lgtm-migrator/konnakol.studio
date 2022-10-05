@@ -2,7 +2,7 @@ import { combine, createEffect, createEvent, createStore, sample, UnitValue } fr
 import { DEFAULT_BPM } from '~/constants';
 import { Pitcher, pitchers } from '~/features/dojo/api/pitcher';
 import { isRepeatingCheckboxChanged, listenButtonClicked, pitcherUpdated, playButtonClicked, promptBPMFx, stopButtonClicked } from '~/features/dojo/ui';
-import Composition, { ICompositionState } from '~/entities/composition/model';
+import Composition, { CompositionId, ICompositionState } from '~/entities/composition/model';
 import * as validation from '~/features/dojo/ui/validation';
 import { $webAudio, detectPitchInBackgroundFx, DetectPitchInBackgroundFxParams, initializeWebAudioApiFx } from '../api';
 import { and, delay, interval, reset, spread } from 'patronum';
@@ -13,6 +13,7 @@ import RollChordTest from '~/data/compositions/roll-chord-test';
 import { bpmToMilliseconds } from '~/utils/tempo.utils';
 import { SingleUnit } from '~/entities/unit/model/Unit';
 import { Frequency } from '~/types/fraction.types';
+import { loadComposition } from '../api/compositions';
 
 interface RepeatCompositionSource {
   composition: Composition | null
@@ -29,6 +30,10 @@ type CheckCompositionParams = NonNullableStructure<CheckCompositionSource>
 type RepeatCompositionParams = NonNullableStructure<RepeatCompositionSource>
 
 type CheckCompositionFx = (params: CheckCompositionParams) => void
+
+export const loadCompositionFx = createEffect(
+  (id: CompositionId) => loadComposition(id)
+)
 
 export const subscribeCompositionUpdatesFx = createEffect(
   (composition: Composition) => composition.subscribe(compositionUpdated)
@@ -66,7 +71,7 @@ export const startCheckingFrequencyInBackground = createEvent()
 export const fractionUpdated = createEvent<SingleUnit>()
 export const tactUpdated = createEvent<Tact>()
 export const loopIncremented = createEvent()
-export const compositionSelected = createEvent<Composition>()
+export const compositionRequested = createEvent<CompositionId>()
 export const compositionUpdated = spread<ICompositionState>({ targets: { fraction: fractionUpdated, tact: tactUpdated } })
 export const compositionSubscribed = createEvent()
 export const compositionUnsubscribed = createEvent()
@@ -81,7 +86,12 @@ reset({
 })
 
 sample({
-  clock: compositionSelected,
+  clock: compositionRequested,
+  target: loadCompositionFx
+})
+
+sample({
+  clock: loadCompositionFx.doneData,
   target: $composition
 })
 
@@ -214,5 +224,3 @@ sample({
   target: updateScore
 })
 
-// TODO: must be called from list of the compositions, initial is null
-compositionSelected(new Composition(RollChordTest)) 

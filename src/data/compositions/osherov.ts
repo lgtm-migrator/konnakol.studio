@@ -38,7 +38,7 @@ const pattern = [
     new Fraction(6, { frequencies: [DKurd.notes[4].frequency], symbol: '4' }),
     new Fraction(7, { frequencies: [], symbol: 'B', color: 'green' }),
   ]),
-  new Tact(2, [
+  new Tact(3, [
     new Fraction(0, { frequencies: [], symbol: '*' }),
     new Fraction(1, { frequencies: [], symbol: '.', color: 'green' }),
     new Fraction(2, { frequencies: [DKurd.notes[1].frequency], symbol: '1' }),

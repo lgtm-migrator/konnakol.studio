@@ -4,9 +4,10 @@ import Tact from './Tact'
 type CompositionTransition = AsyncGenerator<ICompositionState>
 type UpdateHandler = (state: ICompositionState) => void
 type Pattern = Tact[]
+export type CompositionId = number
 
 export interface ICompositionConfig {
-  readonly id: number
+  readonly id: CompositionId
   readonly name: string
   readonly pattern: Pattern
   readonly bpm: number
@@ -23,7 +24,7 @@ export interface IComposition extends ICompositionConfig {
 }
 
 export default class Composition implements IComposition {
-  public readonly id: number
+  public readonly id: CompositionId
   public readonly name: string
   public readonly pattern: Pattern
   public readonly bpm: number

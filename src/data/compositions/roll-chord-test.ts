@@ -28,7 +28,7 @@ const pattern = [
 ]
 
 const RollChordTest = new Composition({
-  id: 1,
+  id: 2,
   bpm: 60,
   name: 'Rolls & Chords (Test)',
   pattern,

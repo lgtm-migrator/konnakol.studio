@@ -20,8 +20,8 @@ Other features will be implemented soon, check the [roadmap section](#roadmap).
 
 - [x] - Simple fractions checking with specified BPM
 - [x] - Score system
-- [] - Bind your instrument's frequencies to composition frequencies (in case if you play on different scale)
-- [] - The library of arrangements `in progress`
-- [] - Editor to create your own arrangements
-- [] - Marketplace 
+- [ ] - Bind your instrument's frequencies to composition frequencies (in case if you play on different scale)
+- [ ] - The library of arrangements `in progress`
+- [ ] - Editor to create your own arrangements
+- [ ] - Marketplace 
 

@@ -10,5 +10,3 @@ export enum UnitKind {
   Chord = 'chord',
   Note = 'note'
 }
-
-export type UnitChildren = ChordNotes | Note[] | null

@@ -1,14 +1,14 @@
-import { AnyUnit } from '~/entities/unit/model/Unit'
-import { sleep } from '~/utils/common.utils'
-import { bpmToMilliseconds } from '~/utils/tempo.utils'
+import Unit from '~/entities/unit/model/Unit'
 import Tact from './Tact'
+import { CompositionSchema } from './types'
 
 type CompositionTransition = AsyncGenerator<ICompositionState>
 type UpdateHandler = (state: ICompositionState) => void
 type Pattern = Tact[]
+export type CompositionId = number
 
 export interface ICompositionConfig {
-  readonly id: number
+  readonly id: CompositionId
   readonly name: string
   readonly pattern: Pattern
   readonly bpm: number
@@ -16,8 +16,8 @@ export interface ICompositionConfig {
 }
 
 export interface ICompositionState {
-  tact: Tact,
-  unit: AnyUnit
+  tact: Tact
+  fraction: Unit
 }
 
 export interface IComposition extends ICompositionConfig {
@@ -25,7 +25,7 @@ export interface IComposition extends ICompositionConfig {
 }
 
 export default class Composition implements IComposition {
-  public readonly id: number
+  public readonly id: CompositionId
   public readonly name: string
   public readonly pattern: Pattern
   public readonly bpm: number
@@ -69,11 +69,23 @@ export default class Composition implements IComposition {
     return this
   }
 
+  public stringify() {
+    return JSON.stringify({
+      id: this.id,
+      bpm: this.bpm,
+      name: this.name,
+      pattern: this.pattern,
+      size: this.size
+    })
+  }
+
   private async *transition(bpm: number): CompositionTransition {
     for (const tact of this.pattern) {
       for (const unit of tact.units) {
-        await unit.play(bpm)
-        yield { unit, tact }
+        const fractions = unit.play(bpm)
+        for await (const fraction of fractions) {
+          yield { fraction, tact }
+        }
       }
     }
   }

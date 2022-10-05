@@ -4,29 +4,27 @@ import { areFrequenciesCorrect } from '~/utils/frequency.utils';
 import { bpmToMilliseconds } from '~/utils/tempo.utils';
 import Note from './Note';
 import { UnitKind } from './shared';
-import Unit, { AnyUnit } from './Unit';
+import Unit, { CompositeUnit, SingleUnit } from './Unit';
 
-export const isRoll = (unit: AnyUnit): unit is Roll => unit instanceof Roll
+export const isRoll = (unit: Unit): unit is Roll => unit instanceof Roll
 
-export default class Roll implements Unit<Note[]> {
+export default class Roll implements CompositeUnit<SingleUnit[]> {
   public readonly kind = UnitKind.Roll
-  public currentFraction: Note | null = null
+  public currentFraction: SingleUnit | null = null
 
-  constructor(public readonly index: number, public readonly children: Note[]) { }
+  constructor(public readonly index: number, public readonly children: SingleUnit[]) { }
 
   get symbol() {
     return `[${this.children.map(({ symbol }) => symbol).join(',')}]`
   }
 
-  async play(bpm: number) {
+  async *play(bpm: number) {
     const interval = bpmToMilliseconds(bpm) / this.children.length
-
-    for (const fraction of this.children) {
-      this.currentFraction = fraction
+    for (const currentFraction of this.children) {
+      this.currentFraction = currentFraction
+      yield this.currentFraction
       await sleep(interval)
     }
-
-    return this
   }
 
   check(receivedFrequency: Frequency) {

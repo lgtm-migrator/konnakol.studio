@@ -14,6 +14,7 @@ import { bpmToMilliseconds } from '~/utils/tempo.utils';
 import { SingleUnit } from '~/entities/unit/model/Unit';
 import { Frequency } from '~/types/fraction.types';
 import { loadComposition } from '../api/compositions';
+import { CompositionSchema } from '~/entities/composition/model/types';
 
 interface RepeatCompositionSource {
   composition: Composition | null
@@ -223,4 +224,3 @@ sample({
   },
   target: updateScore
 })
-

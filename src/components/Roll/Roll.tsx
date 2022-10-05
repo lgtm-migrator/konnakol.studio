@@ -2,9 +2,10 @@ import "./Roll.css";
 import Note from "~/entities/unit/model/Note";
 import NoteComponent from "~/components/Note";
 import { Selectable } from "~/utils/types.utils";
+import { SingleUnit } from '~/entities/unit/model';
 
 interface IRollComponentProps extends Selectable {
-  notes: Note[];
+  notes: SingleUnit[];
 }
 
 const RollComponent: React.FC<IRollComponentProps> = ({ notes }) => {

@@ -3,12 +3,12 @@ import React from "react";
 import Note from "~/components/Note";
 import Chord from "~/components/Chord";
 import Roll from "~/components/Roll";
-import { AnyUnit } from "~/entities/unit/model/Unit";
 import { isChord, isNote, isRoll } from "~/entities/unit/model";
+import Unit from '~/entities/unit/model/Unit';
 
 interface IUnitProps {
   selected: boolean;
-  unit: AnyUnit;
+  unit: Unit;
 }
 
 const UnitComponent: React.FC<IUnitProps> = ({ unit, selected }) => {

@@ -24,7 +24,6 @@ import {
 } from "./features/dojo/model";
 import { useStore } from "effector-react";
 import { $failed, $success } from "./features/dojo/model/score";
-import { isNote } from "./entities/unit/model";
 
 function App() {
   const composition = useStore($composition);
@@ -35,16 +34,16 @@ function App() {
   const isListening = useStore($isListening);
   const isRepeating = useStore($isRepeating);
   const tact = useStore($tact);
-  const fraction = useStore($fraction);
+  const fraction = useStore($fraction)
   const successScore = useStore($success);
   const failedScore = useStore($failed);
 
   const pitchersKeys = useMemo(() => Object.keys(pitchers), []);
 
   const expectedFrequencies = useMemo(
-    () => fraction?.children?.flatMap(({ frequencies }) => frequencies),
+    () => fraction?.frequencies ?? [],
     [fraction]
-  );
+  )
 
   return (
     <main>
@@ -55,7 +54,7 @@ function App() {
             <p className="composition__success">Success: {successScore}</p>
             <p className="composition__failed">Failed: {failedScore}</p>
             <p className="composition__frequency">
-              Expected: {expectedFrequencies?.join("|")} Hz
+              Expected: {expectedFrequencies.join("|")} Hz
             </p>
             <p className="composition__frequency">
               Received: {currentFrequency.toFixed(2)} Hz

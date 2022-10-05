@@ -1,10 +1,10 @@
 import "./Tact.css";
 
-import { AnyUnit } from "~/entities/unit/model/Unit";
 import UnitComponent from "~/components/Unit";
+import Unit from '~/entities/unit/model/Unit';
 
 interface ITactProps {
-  units: AnyUnit[];
+  units: Unit[];
   selected: boolean;
   selectedUnitIndex?: number;
 }

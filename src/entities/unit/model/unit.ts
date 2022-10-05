@@ -1,13 +1,19 @@
 import { Frequency } from '~/types/fraction.types';
-import { Fraction, UnitChildren, UnitKind } from './shared';
+import { UnitKind } from './shared';
 
-export default interface Unit<Children extends UnitChildren> {
+export default interface Unit {
   readonly kind: UnitKind
-  readonly children: Children
   readonly index: number
-  readonly symbol: string
-  play: (bpm: number) => AsyncGenerator<Fraction>
+  play: (bpm: number) => AsyncGenerator<Unit>
   check: (receivedFrequency: Frequency) => boolean
 }
 
-export type AnyUnit = Unit<UnitChildren>
+export interface SingleUnit extends Unit {
+  readonly symbol: string
+  readonly color: string
+  readonly frequencies: Frequency[]
+}
+
+export interface CompositeUnit<Children extends SingleUnit[]> extends Unit {
+  readonly children: Children
+}

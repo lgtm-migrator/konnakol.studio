@@ -1,6 +1,4 @@
-import Note from '~/entities/unit/model/Note'
-import { Fraction } from '~/entities/unit/model/shared'
-import { AnyUnit } from '~/entities/unit/model/Unit'
+import Unit from '~/entities/unit/model/Unit'
 import Tact from './Tact'
 
 type CompositionTransition = AsyncGenerator<ICompositionState>
@@ -16,8 +14,8 @@ export interface ICompositionConfig {
 }
 
 export interface ICompositionState {
-  tact: Tact,
-  fraction: Fraction
+  tact: Tact
+  fraction: Unit
 }
 
 export interface IComposition extends ICompositionConfig {

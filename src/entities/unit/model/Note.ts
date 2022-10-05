@@ -3,7 +3,7 @@ import { sleep } from '~/utils/common.utils';
 import { isFrequencyCorrect } from '~/utils/frequency.utils';
 import { bpmToMilliseconds } from '~/utils/tempo.utils';
 import { UnitKind } from './shared';
-import Unit, { AnyUnit } from './Unit';
+import Unit, { SingleUnit } from './Unit';
 
 interface NoteConfig {
   frequencies: Frequency[]
@@ -11,15 +11,14 @@ interface NoteConfig {
   color?: string
 }
 
-export const isNote = (unit: AnyUnit): unit is Note => unit instanceof Note
+export const isNote = (unit: Unit): unit is Note => unit instanceof Note
 
-export default class Note implements Unit<null> {
+export default class Note implements SingleUnit {
   kind = UnitKind.Note
-  children = null
 
   frequencies: Frequency[]
   symbol: string
-  color?: string
+  color: string
 
   constructor(public readonly index: number, config: NoteConfig) {
     if (config.frequencies.length > 1) {
@@ -27,14 +26,14 @@ export default class Note implements Unit<null> {
     }
 
     this.frequencies = config.frequencies
-    this.color = config.color
+    this.color = config.color ?? 'black'
     this.symbol = config.symbol
   }
 
-  async play(bpm: number) {
+  async *play(bpm: number) {
     const interval = bpmToMilliseconds(bpm)
+    yield this
     await sleep(interval)
-    return this
   }
 
   check(receivedFrequency: Frequency) {

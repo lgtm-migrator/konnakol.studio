@@ -1,18 +1,18 @@
-import { attach, combine, createEffect, createEvent, createStore, sample, UnitValue } from 'effector';
+import { combine, createEffect, createEvent, createStore, sample, UnitValue } from 'effector';
 import { DEFAULT_BPM } from '~/constants';
 import { Pitcher, pitchers } from '~/features/dojo/api/pitcher';
 import { isRepeatingCheckboxChanged, listenButtonClicked, pitcherUpdated, playButtonClicked, promptBPMFx, stopButtonClicked } from '~/features/dojo/ui';
-import Composition from '~/entities/composition/model';
+import Composition, { ICompositionState } from '~/entities/composition/model';
 import * as validation from '~/features/dojo/ui/validation';
 import { $webAudio, detectPitchInBackgroundFx, DetectPitchInBackgroundFxParams, initializeWebAudioApiFx } from '../api';
-import { and, condition, delay, either, interval, not, reset, spread } from 'patronum';
+import { and, delay, interval, reset, spread } from 'patronum';
 import { $score, Correctness, ScoreSource, ScoreString, updateScore } from './score';
 import { NonNullableStructure } from '~/utils/types.utils';
-import { Frequency } from '~/types/fraction.types';
 import Tact from '~/entities/composition/model/Tact';
-import { AnyUnit } from '~/entities/unit/model/Unit';
 import RollChordTest from '~/data/compositions/roll-chord-test';
 import { bpmToMilliseconds } from '~/utils/tempo.utils';
+import { SingleUnit } from '~/entities/unit/model/Unit';
+import { Frequency } from '~/types/fraction.types';
 
 interface RepeatCompositionSource {
   composition: Composition | null
@@ -48,7 +48,7 @@ export const stopCompositionFx = createEffect(
 
 export const $bpm = createStore(DEFAULT_BPM)
 export const $composition = createStore<Composition | null>(null)
-export const $unit = createStore<AnyUnit | null>(null)
+export const $fraction = createStore<SingleUnit | null>(null)
 export const $tact = createStore<Tact | null>(null)
 export const $frequency = createStore<Frequency>(0)
 export const $pitcher = createStore<Pitcher>(pitchers.ACF2PLUS)
@@ -59,15 +59,15 @@ export const $scoreSource = combine({
   frequency: $frequency,
   tact: $tact,
   loopIndex: $loopIndex,
-  unit: $unit,
+  fraction: $fraction,
 })
 export const $isPlaying = and($composition, playCompositionFx.pending)
 export const startCheckingFrequencyInBackground = createEvent()
-export const unitUpdated = createEvent<AnyUnit>()
+export const fractionUpdated = createEvent<SingleUnit>()
 export const tactUpdated = createEvent<Tact>()
 export const loopIncremented = createEvent()
 export const compositionSelected = createEvent<Composition>()
-export const compositionUpdated = spread({ targets: { unit: unitUpdated, tact: tactUpdated } })
+export const compositionUpdated = spread<ICompositionState>({ targets: { fraction: fractionUpdated, tact: tactUpdated } })
 export const compositionSubscribed = createEvent()
 export const compositionUnsubscribed = createEvent()
 export const compositionFinished = delay({
@@ -77,7 +77,7 @@ export const compositionFinished = delay({
 
 reset({
   clock: compositionFinished,
-  target: [$tact, $unit, $frequency, $score]
+  target: [$tact, $fraction, $frequency, $score]
 })
 
 sample({
@@ -147,8 +147,8 @@ sample({
 })
 
 sample({
-  clock: unitUpdated,
-  target: $unit
+  clock: fractionUpdated,
+  target: $fraction
 })
 
 sample({
@@ -159,6 +159,13 @@ sample({
 sample({
   clock: promptBPMFx.doneData,
   fn: validation.bpm,
+  target: $bpm
+})
+
+sample({
+  clock: $composition,
+  filter: Boolean,
+  fn: ({ bpm }) => bpm,
   target: $bpm
 })
 
@@ -198,14 +205,14 @@ sample({
 
 sample({
   clock: $scoreSource,
-  filter: (source: UnitValue<typeof $scoreSource>): source is ScoreSource => !!source.unit,
-  fn: ({ unit, frequency, tact, loopIndex }): [ScoreString, Correctness] => {
-    const status = unit.check(frequency) ? 'success' : 'failed'
+  filter: (source: UnitValue<typeof $scoreSource>): source is ScoreSource => !!source.fraction,
+  fn: ({ fraction, frequency, tact, loopIndex }): [ScoreString, Correctness] => {
+    const status = fraction.check(frequency) ? 'success' : 'failed'
 
-    return [`${loopIndex}:${tact.index}:${unit.index}`, status];
+    return [`${loopIndex}:${fraction.index}:${fraction.index}`, status];
   },
   target: updateScore
 })
 
-// TO DO: must be called from list of the compositions, initial is null
+// TODO: must be called from list of the compositions, initial is null
 compositionSelected(new Composition(RollChordTest)) 

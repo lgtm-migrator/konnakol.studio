@@ -4,10 +4,11 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  font-size: 25px;
+  font-size: 24px;
 }
 
 .unit--selected {
   background-color: rgba(239, 177, 60, 0.5);
   border-radius: 5px;
 }
+

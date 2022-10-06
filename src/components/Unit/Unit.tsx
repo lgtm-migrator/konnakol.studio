@@ -4,16 +4,16 @@ import Note from "~/components/Note";
 import Chord from "~/components/Chord";
 import Roll from "~/components/Roll";
 import { isChord, isNote, isRoll } from "~/entities/unit/model";
-import Unit from '~/entities/unit/model/Unit';
+import Unit from "~/entities/unit/model/Unit";
 
 interface IUnitProps {
-  selected: boolean;
   unit: Unit;
+  selected?: boolean;
 }
 
-const UnitComponent: React.FC<IUnitProps> = ({ unit, selected }) => {
+const UnitComponent: React.FC<IUnitProps> = ({ unit, selected = false }) => {
   let component = <div>???</div>;
-
+  
   if (isNote(unit)) {
     component = <Note symbol={unit.symbol} color={unit.color} />;
   }

@@ -2,14 +2,13 @@ import { Frequency } from '~/types/fraction.types';
 import { sleep } from '~/utils/common.utils';
 import { areFrequenciesCorrect } from '~/utils/frequency.utils';
 import { bpmToMilliseconds } from '~/utils/tempo.utils';
-import Note from './Note';
-import { UnitKind } from './shared';
-import Unit, { CompositeUnit, SingleUnit } from './Unit';
+import Unit, { CompositeUnit, SingleUnit, UnitKind, UnitType } from './Unit';
 
 export const isRoll = (unit: Unit): unit is Roll => unit instanceof Roll
 
 export default class Roll implements CompositeUnit<SingleUnit[]> {
-  public readonly kind = UnitKind.Roll
+  public readonly kind = UnitKind.Composite
+  public readonly type = UnitType.Roll
   public currentFraction: SingleUnit | null = null
 
   constructor(public readonly index: number, public readonly children: SingleUnit[]) { }

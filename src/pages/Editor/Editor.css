@@ -1,0 +1,21 @@
+.editor {
+  display: grid;
+  grid-template-columns: 20% 80%;
+  padding: 20px;
+}
+
+.editor__toolbar {
+  max-width: 20%;
+}
+
+.toolbar__unit-button {
+  width: 100%;
+}
+
+.toolbar__units {
+  display: grid;
+  align-items: center;
+  gap: 15px;
+  grid-template-columns: repeat(3, 1fr);
+  grid-auto-flow: row;
+}

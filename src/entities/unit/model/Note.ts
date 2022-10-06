@@ -2,8 +2,7 @@ import { Frequency } from '~/types/fraction.types';
 import { sleep } from '~/utils/common.utils';
 import { isFrequencyCorrect } from '~/utils/frequency.utils';
 import { bpmToMilliseconds } from '~/utils/tempo.utils';
-import { UnitKind } from './shared';
-import Unit, { SingleUnit } from './Unit';
+import Unit, { SingleUnit, UnitKind, UnitType } from './Unit';
 
 interface NoteConfig {
   frequencies: Frequency[]
@@ -14,7 +13,8 @@ interface NoteConfig {
 export const isNote = (unit: Unit): unit is Note => unit instanceof Note
 
 export default class Note implements SingleUnit {
-  kind = UnitKind.Note
+  kind: UnitKind.Single = UnitKind.Single
+  type: UnitType.Note = UnitType.Note
 
   frequencies: Frequency[]
   symbol: string

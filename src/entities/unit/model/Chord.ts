@@ -3,8 +3,8 @@ import { sleep } from '~/utils/common.utils';
 import { areFrequenciesCorrect } from '~/utils/frequency.utils';
 import { bpmToMilliseconds } from '~/utils/tempo.utils';
 import Note from './Note';
-import { ChordNotes, UnitKind } from './shared';
-import Unit, { CompositeUnit, SingleUnit } from './Unit';
+import { ChordNotes } from './shared';
+import Unit, { CompositeUnit, SingleUnit, UnitKind, UnitType } from './Unit';
 
 export const isChordNotesCountCorrect = (
   notes: Note[]
@@ -15,8 +15,9 @@ export const isChord = (
 ): unit is Chord => unit instanceof Chord && isChordNotesCountCorrect(unit.children)
 
 export default class Chord implements CompositeUnit<ChordNotes> {
+  kind: UnitKind.Composite = UnitKind.Composite;
+  type: UnitType.Chord = UnitType.Chord
   public readonly frequencies: Frequency[]
-  kind = UnitKind.Chord;
 
   constructor(public readonly index: number, public readonly children: ChordNotes) {
     this.frequencies = this.children.flatMap(({ frequencies }) => frequencies)

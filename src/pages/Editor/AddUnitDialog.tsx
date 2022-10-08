@@ -1,9 +1,26 @@
-import { TextField, Dialog, DialogTitle, DialogContent, DialogContentText, Select, MenuItem, DialogActions, Button } from '@mui/material';
-import { useStore } from 'effector-react';
-import { UnitType } from '~/entities/unit/model';
-import { $newUnitType, $singleUnits } from '~/features/editor/model';
-import { newUnitSymbolChanged, newUnitFrequencyChanged, $isAddUnitDialogOpened, addUnitDialogClosed, createUnitButtonClicked, newUnitTypeSelected } from '~/features/editor/ui';
-import SingleUnitCollection from './SingleUnitCollection';
+import {
+  TextField,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogContentText,
+  Select,
+  MenuItem,
+  DialogActions,
+  Button,
+} from "@mui/material";
+import { useStore } from "effector-react";
+import { UnitType } from "~/entities/unit/model";
+import { $newUnitType, $singleUnits } from "~/features/editor/model";
+import {
+  newUnitSymbolChanged,
+  newUnitFrequencyChanged,
+  createUnitButtonClicked,
+  newUnitTypeSelected,
+  createUnitDialogClosed,
+  $isCreateUnitDialogOpened,
+} from "~/features/editor/ui";
+import SingleUnitCollection from "./SingleUnitCollection";
 
 function AddUnitForm() {
   const unitType = useStore($newUnitType);
@@ -27,7 +44,9 @@ function AddUnitForm() {
             label="Frequency"
             type="number"
             variant="standard"
-            onChange={({ target: { value } }) => newUnitFrequencyChanged(value)}
+            onChange={({ target: { value } }) =>
+              newUnitFrequencyChanged([0, value])
+            }
           />
         </>
       );
@@ -43,10 +62,10 @@ function AddUnitForm() {
   }
 }
 
-function AddUnitDialog() {
+function CreateUnitDialog() {
   const selectedUnitType = useStore($newUnitType);
-  const open = useStore($isAddUnitDialogOpened);
-  const close = () => addUnitDialogClosed();
+  const open = useStore($isCreateUnitDialogOpened);
+  const close = () => createUnitDialogClosed();
   const create = () => createUnitButtonClicked();
 
   return (
@@ -81,4 +100,4 @@ function AddUnitDialog() {
   );
 }
 
-export default AddUnitDialog
+export default CreateUnitDialog;

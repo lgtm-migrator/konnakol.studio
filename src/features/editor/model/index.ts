@@ -1,16 +1,24 @@
-import { combine, createEffect, createEvent, createStore, sample } from 'effector';
+import { combine, createEffect, createStore, sample } from 'effector';
+import cloneDeep from 'lodash.clonedeep';
 import Chord from '~/entities/unit/model/Chord';
 import Note from '~/entities/unit/model/Note';
 import Roll from '~/entities/unit/model/Roll';
 import Unit, { SingleUnit, UnitType } from '~/entities/unit/model/Unit';
-import { addUnitDialogClosed, createUnitButtonClicked, editUnitButtonClicked, editUnitDialogOpened, newUnitFrequencyChanged, newUnitSymbolChanged, newUnitTypeSelected } from '~/features/editor/ui';
+import {
+  createUnitButtonClicked,
+  createUnitDialogClosed,
+  editUnitDialogOpened,
+  newUnitFrequencyChanged,
+  newUnitSymbolChanged,
+  newUnitTypeSelected,
+} from '~/features/editor/ui';
 import { Frequency } from '~/types/fraction.types';
 
 interface ICreateUnitFxParams {
   units: Unit[]
   newUnit: {
     type: UnitType,
-    frequency: Frequency,
+    frequencies: Frequency[],
     symbol: string
   }
 }
@@ -21,7 +29,7 @@ export const createUnitFx = createEffect(async ({ newUnit, units }: ICreateUnitF
   switch (newUnit.type) {
     case UnitType.Note: {
       return [
-        new Note(newUnitIndex, { frequencies: [newUnit.frequency], symbol: newUnit.symbol }),
+        new Note(newUnitIndex, { frequencies: newUnit.frequencies, symbol: newUnit.symbol }),
         ...units
       ]
     }
@@ -40,15 +48,34 @@ export const $units = createStore<Unit[]>([])
 export const $singleUnits = $units.map(
   units => units.filter<SingleUnit>((unit): unit is SingleUnit => unit.type === UnitType.Note)
 )
-export const $editableUnit = createStore<Unit | null>(null)
 
 export const $newUnitType = createStore<UnitType>(UnitType.Note)
-export const $newUnitFrequency = createStore<Frequency>(0)
+export const $newUnitFrequencies = createStore<Frequency[]>([0])
 export const $newUnitSymbol = createStore<string>('')
+
+export const $editableUnitIndex = createStore<number | null>(null)
+export const $editableUnitType = createStore<UnitType>(UnitType.Note)
+export const $editableUnitFrequencies = createStore<Frequency[]>([0])
+export const $editableUnitSymbol = createStore<string>('')
+export const $editableUnit = combine(
+  $units,
+  $editableUnitIndex,
+  (units, index) => {
+    if (index === null) {
+      return null
+    }
+
+    const unit = units[index]
+    return cloneDeep(unit)
+  }
+)
 
 sample({
   clock: createUnitButtonClicked,
-  source: { units: $units, newUnit: combine({ type: $newUnitType, frequency: $newUnitFrequency, symbol: $newUnitSymbol }) },
+  source: {
+    units: $units,
+    newUnit: combine({ type: $newUnitType, frequencies: $newUnitFrequencies, symbol: $newUnitSymbol })
+  },
   target: createUnitFx
 })
 
@@ -59,7 +86,7 @@ sample({
 
 sample({
   clock: createUnitFx.doneData,
-  target: addUnitDialogClosed
+  target: createUnitDialogClosed
 })
 
 sample({
@@ -69,8 +96,9 @@ sample({
 
 sample({
   clock: newUnitFrequencyChanged,
-  fn: Number,
-  target: $newUnitFrequency,
+  source: $newUnitFrequencies,
+  fn: (freqs, [index, newFreq]) => freqs.map((freq, i) => i === index ? Number(newFreq) : freq),
+  target: $newUnitFrequencies,
 })
 
 sample({
@@ -80,16 +108,5 @@ sample({
 
 sample({
   clock: editUnitDialogOpened,
-  source: $units,
-  fn: (units, editableUnitIndex) => {
-    const unit = units.find(({ index }) => index === editableUnitIndex)
-
-    if (!unit) {
-      throw new Error('Unit not found, id: ' + editableUnitIndex)
-    }
-
-    return unit
-  },
-  target: $editableUnit
+  target: $editableUnitIndex
 })
-

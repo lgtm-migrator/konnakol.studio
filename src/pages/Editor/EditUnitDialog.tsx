@@ -12,24 +12,28 @@ import {
 import { useStore } from "effector-react";
 import { UnitType } from "~/entities/unit/model";
 import {
-  $editableUnit,
+  $editableUnitIndex,
+  $newUnitFrequencies,
+  $newUnitSymbol,
   $newUnitType,
   $singleUnits,
   $units,
 } from "~/features/editor/model";
 import {
   $isEditUnitDialogOpened,
+  editableUnitFrequencyChanged,
+  editableUnitSymbolChanged,
+  editableUnitTypeSelected,
   editUnitButtonClicked,
   editUnitDialogClosed,
-  unitFrequencyChanged,
-  unitSymbolChanged,
-  unitTypeSelected,
 } from "~/features/editor/ui";
 import SingleUnitCollection from "./SingleUnitCollection";
 
 function EditUnitForm() {
   const unitType = useStore($newUnitType);
   const singleUnits = useStore($singleUnits);
+  const symbol = useStore($newUnitSymbol);
+  const frequencies = useStore($newUnitFrequencies);
 
   switch (unitType) {
     case UnitType.Note: {
@@ -41,16 +45,25 @@ function EditUnitForm() {
             label="Symbol"
             type="text"
             variant="standard"
-            onChange={({ target: { value } }) => unitSymbolChanged(value)}
+            value={symbol}
+            onChange={({ target: { value } }) =>
+              editableUnitSymbolChanged(value)
+            }
           />
-          <TextField
-            fullWidth
-            margin="dense"
-            label="Frequency"
-            type="number"
-            variant="standard"
-            onChange={({ target: { value } }) => unitFrequencyChanged(value)}
-          />
+          {frequencies.map((freq, key) => (
+            <TextField
+              key={key}
+              fullWidth
+              margin="dense"
+              label="Frequency"
+              type="number"
+              variant="standard"
+              value={freq}
+              onChange={({ target: { value } }) =>
+                editableUnitFrequencyChanged([0, value])
+              }
+            />
+          ))}
         </>
       );
     }
@@ -84,7 +97,7 @@ function EditUnitDialog() {
           <Select
             value={editableUnit.type}
             onChange={({ target: { value } }) =>
-              unitTypeSelected(value as UnitType)
+              editableUnitTypeSelected(value as UnitType)
             }
           >
             <MenuItem value={UnitType.Note}>Note</MenuItem>

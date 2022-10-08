@@ -2,33 +2,34 @@ import { createEvent, createStore, sample } from 'effector';
 import { UnitType } from '~/entities/unit/model';
 
 export type ToolbarUnitIndex = number
+export type FrequencyIndex = number
 
-export const $isAddUnitDialogOpened = createStore(false)
+export const $isCreateUnitDialogOpened = createStore(false)
 export const $isEditUnitDialogOpened = createStore(false)
 
-export const addUnitDialogOpened = createEvent()
-export const addUnitDialogClosed = createEvent()
+export const createUnitDialogOpened = createEvent()
+export const createUnitDialogClosed = createEvent()
 export const editUnitDialogOpened = createEvent<ToolbarUnitIndex>()
 export const editUnitDialogClosed = createEvent()
 export const newUnitTypeSelected = createEvent<UnitType>()
-export const newUnitFrequencyChanged = createEvent<string>()
+export const newUnitFrequencyChanged = createEvent<[FrequencyIndex, string]>()
 export const newUnitSymbolChanged = createEvent<string>()
-export const unitTypeSelected = createEvent<UnitType>()
-export const unitFrequencyChanged = createEvent<string>()
-export const unitSymbolChanged = createEvent<string>()
-export const editUnitButtonClicked = createEvent()
+export const editableUnitTypeSelected = createEvent<UnitType>()
+export const editableUnitFrequencyChanged = createEvent<[FrequencyIndex, string]>()
+export const editableUnitSymbolChanged = createEvent<string>()
+export const editUnitButtonClicked = createEvent<ToolbarUnitIndex>()
 export const createUnitButtonClicked = createEvent()
 
 sample({
-  clock: addUnitDialogOpened,
+  clock: createUnitDialogOpened,
   fn: () => true,
-  target: $isAddUnitDialogOpened
+  target: $isCreateUnitDialogOpened
 })
 
 sample({
-  clock: addUnitDialogClosed,
+  clock: createUnitDialogClosed,
   fn: () => false,
-  target: $isAddUnitDialogOpened
+  target: $isCreateUnitDialogOpened
 })
 
 sample({

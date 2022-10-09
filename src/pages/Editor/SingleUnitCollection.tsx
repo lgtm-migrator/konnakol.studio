@@ -1,8 +1,8 @@
 import NoteComponent from '~/components/Note';
-import { SingleUnit } from '~/entities/unit/model';
+import { Renderable, SingleUnit } from '~/entities/unit/model';
 
 interface ISingleUnitCollectionProps {
-  units: SingleUnit[];
+  units: (SingleUnit & Renderable)[];
 }
 
 function SingleUnitCollection({ units }: ISingleUnitCollectionProps) {

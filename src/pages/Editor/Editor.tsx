@@ -4,13 +4,13 @@ import { useParams } from "react-router-dom";
 import { Button, IconButton } from "@mui/material";
 import { useStore } from "effector-react";
 import {
-  addUnitDialogOpened,
+  createUnitDialogOpened,
   editUnitDialogOpened,
 } from "~/features/editor/ui";
 import { $units } from "~/features/editor/model";
 import UnitComponent from "~/components/Unit";
 import AddUnitDialog from "./AddUnitDialog";
-import EditUnitDialog from './EditUnitDialog';
+import EditUnitDialog from "./EditUnitDialog";
 
 function Editor() {
   const { compositionId } = useParams();
@@ -28,7 +28,10 @@ function Editor() {
             </div>
           ))}
           <div className="toolbar__unit-button">
-            <IconButton color="primary" onClick={() => addUnitDialogOpened()}>
+            <IconButton
+              color="primary"
+              onClick={() => createUnitDialogOpened()}
+            >
               <AddIcon />
             </IconButton>
           </div>

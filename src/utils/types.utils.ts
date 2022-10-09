@@ -5,3 +5,7 @@ export type NonNullableStructure<T> = {
 export interface Selectable {
   selected?: boolean;
 }
+
+export interface Indexed<I = number> {
+  index: I
+}

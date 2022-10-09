@@ -1,19 +1,27 @@
 import "./Roll.css";
-import Note from "~/entities/unit/model/Note";
 import NoteComponent from "~/components/Note";
+import ChordComponent from "~/components/Chord";
 import { Selectable } from "~/utils/types.utils";
-import { SingleUnit } from '~/entities/unit/model';
+import { isChord, RollChildren } from "~/entities/unit/model";
+import Chord from "~/entities/unit/model/Chord";
+import Note from "~/entities/unit/model/Note";
 
 interface IRollComponentProps extends Selectable {
-  notes: SingleUnit[];
+  beats: RollChildren;
 }
 
-const RollComponent: React.FC<IRollComponentProps> = ({ notes }) => {
+const RollComponent: React.FC<IRollComponentProps> = ({ beats }) => {
   return (
     <>
-      {notes.map(({ symbol, color }, i) => (
-        <NoteComponent symbol={symbol} color={color} key={i} />
-      ))}
+      {beats.map((beat, i) => {
+        if (isChord(beat)) {
+          return <ChordComponent notes={beat.children} key={i} />;
+        }
+
+        return (
+          <NoteComponent symbol={beat.symbol} color={beat.color} key={i} />
+        );
+      })}
     </>
   );
 };

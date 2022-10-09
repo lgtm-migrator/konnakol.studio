@@ -5,16 +5,14 @@ import { isRepeatingCheckboxChanged, listenButtonClicked, pitcherUpdated, playBu
 import Composition, { CompositionId, ICompositionState } from '~/entities/composition/model';
 import * as validation from '~/features/dojo/ui/validation';
 import { $webAudio, detectPitchInBackgroundFx, DetectPitchInBackgroundFxParams, initializeWebAudioApiFx } from '../api';
-import { and, delay, interval, reset, spread } from 'patronum';
+import { and, delay, interval, reset } from 'patronum';
 import { $score, Correctness, ScoreSource, ScoreString, updateScore } from './score';
 import { NonNullableStructure } from '~/utils/types.utils';
 import Tact from '~/entities/composition/model/Tact';
-import RollChordTest from '~/data/compositions/roll-chord-test';
 import { bpmToMilliseconds } from '~/utils/tempo.utils';
 import { SingleUnit } from '~/entities/unit/model/Unit';
 import { Frequency } from '~/types/fraction.types';
 import { loadComposition } from '../api/compositions';
-import { CompositionSchema } from '~/entities/composition/model/types';
 
 interface RepeatCompositionSource {
   composition: Composition | null
@@ -31,6 +29,15 @@ type CheckCompositionParams = NonNullableStructure<CheckCompositionSource>
 type RepeatCompositionParams = NonNullableStructure<RepeatCompositionSource>
 
 type CheckCompositionFx = (params: CheckCompositionParams) => void
+
+export const startCheckingFrequencyInBackground = createEvent()
+export const fractionUpdated = createEvent<SingleUnit>()
+export const tactUpdated = createEvent<Tact>()
+export const loopIncremented = createEvent()
+export const compositionRequested = createEvent<CompositionId>()
+export const compositionSubscribed = createEvent()
+export const compositionUnsubscribed = createEvent()
+export const compositionUpdated = createEvent<ICompositionState>()
 
 export const loadCompositionFx = createEffect(
   (id: CompositionId) => loadComposition(id)
@@ -54,8 +61,7 @@ export const stopCompositionFx = createEffect(
 
 export const $bpm = createStore(DEFAULT_BPM)
 export const $composition = createStore<Composition | null>(null)
-export const $fraction = createStore<SingleUnit | null>(null)
-export const $tact = createStore<Tact | null>(null)
+export const $compositionState = createStore<ICompositionState | null>(null)
 export const $frequency = createStore<Frequency>(0)
 export const $pitcher = createStore<Pitcher>(pitchers.ACF2PLUS)
 export const $isRepeating = createStore(false)
@@ -63,19 +69,12 @@ export const $loopIndex = createStore(0);
 export const $isListening = $webAudio.map(Boolean)
 export const $scoreSource = combine({
   frequency: $frequency,
-  tact: $tact,
-  loopIndex: $loopIndex,
-  fraction: $fraction,
+  loop: $loopIndex,
+  state: $compositionState
 })
+
 export const $isPlaying = and($composition, playCompositionFx.pending)
-export const startCheckingFrequencyInBackground = createEvent()
-export const fractionUpdated = createEvent<SingleUnit>()
-export const tactUpdated = createEvent<Tact>()
-export const loopIncremented = createEvent()
-export const compositionRequested = createEvent<CompositionId>()
-export const compositionUpdated = spread<ICompositionState>({ targets: { fraction: fractionUpdated, tact: tactUpdated } })
-export const compositionSubscribed = createEvent()
-export const compositionUnsubscribed = createEvent()
+
 export const compositionFinished = delay({
   source: playCompositionFx.done,
   timeout: $bpm.map(bpmToMilliseconds)
@@ -83,7 +82,7 @@ export const compositionFinished = delay({
 
 reset({
   clock: compositionFinished,
-  target: [$tact, $fraction, $frequency, $score]
+  target: [$compositionState, $frequency, $score]
 })
 
 sample({
@@ -158,16 +157,6 @@ sample({
 })
 
 sample({
-  clock: fractionUpdated,
-  target: $fraction
-})
-
-sample({
-  clock: tactUpdated,
-  target: $tact
-})
-
-sample({
   clock: promptBPMFx.doneData,
   fn: validation.bpm,
   target: $bpm
@@ -216,11 +205,11 @@ sample({
 
 sample({
   clock: $scoreSource,
-  filter: (source: UnitValue<typeof $scoreSource>): source is ScoreSource => !!source.fraction,
-  fn: ({ fraction, frequency, tact, loopIndex }): [ScoreString, Correctness] => {
-    const status = fraction.check(frequency) ? 'success' : 'failed'
+  filter: (source: UnitValue<typeof $scoreSource>): source is ScoreSource => !!source.state?.beat,
+  fn: ({ state, frequency, loop }): [ScoreString, Correctness] => {
+    const status = state.beat.check(frequency) ? 'success' : 'failed'
 
-    return [`${loopIndex}:${fraction.index}:${fraction.index}`, status];
+    return [`${loop}:${state.tact.index}:${state.beat.index}`, status];
   },
   target: updateScore
 })

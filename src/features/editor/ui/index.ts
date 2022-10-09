@@ -17,7 +17,7 @@ export const newUnitSymbolChanged = createEvent<string>()
 export const editableUnitTypeSelected = createEvent<UnitType>()
 export const editableUnitFrequencyChanged = createEvent<[FrequencyIndex, string]>()
 export const editableUnitSymbolChanged = createEvent<string>()
-export const editUnitButtonClicked = createEvent<ToolbarUnitIndex>()
+export const editUnitButtonClicked = createEvent()
 export const createUnitButtonClicked = createEvent()
 
 sample({

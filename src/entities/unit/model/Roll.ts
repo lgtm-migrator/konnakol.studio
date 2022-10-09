@@ -2,20 +2,21 @@ import { Frequency } from '~/types/fraction.types';
 import { sleep } from '~/utils/common.utils';
 import { areFrequenciesCorrect } from '~/utils/frequency.utils';
 import { bpmToMilliseconds } from '~/utils/tempo.utils';
-import Unit, { CompositeUnit, SingleUnit, UnitKind, UnitType } from './Unit';
+import Chord from './Chord';
+import Note from './Note';
+import { Beat } from './shared';
+import Unit, { CompositeUnit, UnitKind, UnitType } from './Unit';
 
 export const isRoll = (unit: Unit): unit is Roll => unit instanceof Roll
 
-export default class Roll implements CompositeUnit<SingleUnit[]> {
+export type RollChildren = (Chord | Note)[]
+
+export default class Roll implements CompositeUnit<RollChildren> {
   public readonly kind = UnitKind.Composite
   public readonly type = UnitType.Roll
-  public currentFraction: SingleUnit | null = null
+  public currentFraction: Beat | null = null
 
-  constructor(public readonly index: number, public readonly children: SingleUnit[]) { }
-
-  get symbol() {
-    return `[${this.children.map(({ symbol }) => symbol).join(',')}]`
-  }
+  constructor(public readonly children: RollChildren) { }
 
   async *play(bpm: number) {
     const interval = bpmToMilliseconds(bpm) / this.children.length

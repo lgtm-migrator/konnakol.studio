@@ -12,6 +12,7 @@ import {
 import { useStore } from "effector-react";
 import { UnitType } from "~/entities/unit/model";
 import {
+  $editableUnit,
   $editableUnitIndex,
   $newUnitFrequencies,
   $newUnitSymbol,
@@ -79,40 +80,38 @@ function EditUnitForm() {
 }
 
 function EditUnitDialog() {
-  const editableUnit = useStore($editableUnit);
+  const unit = useStore($editableUnit);
   const open = useStore($isEditUnitDialogOpened);
   const close = () => editUnitDialogClosed();
   const save = () => editUnitButtonClicked();
 
-  if (!editableUnit) {
-    return null;
-  }
-
   return (
-    <div>
-      <Dialog open={open} onClose={close}>
-        <DialogTitle>Edit Unit</DialogTitle>
-        <DialogContent>
-          <DialogContentText>Edit existing unit.</DialogContentText>
-          <Select
-            value={editableUnit.type}
-            onChange={({ target: { value } }) =>
-              editableUnitTypeSelected(value as UnitType)
-            }
-          >
-            <MenuItem value={UnitType.Note}>Note</MenuItem>
-            <MenuItem value={UnitType.Chord}>Chord</MenuItem>
-            <MenuItem value={UnitType.Roll}>Roll</MenuItem>
-          </Select>
+    <>
+      {unit && (
+        <Dialog open={open} onClose={close}>
+          <DialogTitle>Edit Unit</DialogTitle>
+          <DialogContent>
+            <DialogContentText>Edit existing unit.</DialogContentText>
+            <Select
+              value={unit.type}
+              onChange={({ target: { value } }) =>
+                editableUnitTypeSelected(value as UnitType)
+              }
+            >
+              <MenuItem value={UnitType.Note}>Note</MenuItem>
+              <MenuItem value={UnitType.Chord}>Chord</MenuItem>
+              <MenuItem value={UnitType.Roll}>Roll</MenuItem>
+            </Select>
 
-          <EditUnitForm />
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={close}>Cancel</Button>
-          <Button onClick={save}>Save</Button>
-        </DialogActions>
-      </Dialog>
-    </div>
+            <EditUnitForm />
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={close}>Cancel</Button>
+            <Button onClick={save}>Save</Button>
+          </DialogActions>
+        </Dialog>
+      )}
+    </>
   );
 }
 

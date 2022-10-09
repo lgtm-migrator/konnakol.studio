@@ -2,7 +2,7 @@ import { Frequency } from '~/types/fraction.types';
 import { sleep } from '~/utils/common.utils';
 import { isFrequencyCorrect } from '~/utils/frequency.utils';
 import { bpmToMilliseconds } from '~/utils/tempo.utils';
-import Unit, { SingleUnit, UnitKind, UnitType } from './Unit';
+import Unit, { Renderable, SingleUnit, UnitKind, UnitType, WithFrequencies } from './Unit';
 
 interface NoteConfig {
   frequencies: Frequency[]
@@ -12,7 +12,7 @@ interface NoteConfig {
 
 export const isNote = (unit: Unit): unit is Note => unit instanceof Note
 
-export default class Note implements SingleUnit {
+export default class Note implements SingleUnit, Renderable, WithFrequencies {
   kind: UnitKind.Single = UnitKind.Single
   type: UnitType.Note = UnitType.Note
 
@@ -20,7 +20,7 @@ export default class Note implements SingleUnit {
   symbol: string
   color: string
 
-  constructor(public readonly index: number, config: NoteConfig) {
+  constructor(config: NoteConfig) {
     if (config.frequencies.length > 1) {
       throw new Error('Fraction can have one or no possible frequencies.')
     }

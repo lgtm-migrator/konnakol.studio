@@ -1,10 +1,11 @@
-import Unit from '~/entities/unit/model/Unit'
+import { Beat } from '~/entities/unit/model/shared'
+import { Indexed } from '~/utils/types.utils'
 import Tact from './Tact'
-import { CompositionSchema } from './types'
 
 type CompositionTransition = AsyncGenerator<ICompositionState>
 type UpdateHandler = (state: ICompositionState) => void
 type Pattern = Tact[]
+
 export type CompositionId = number
 
 export interface ICompositionConfig {
@@ -16,8 +17,8 @@ export interface ICompositionConfig {
 }
 
 export interface ICompositionState {
-  tact: Tact
-  fraction: Unit
+  tact: Indexed & Tact
+  beat: Indexed & Beat
 }
 
 export interface IComposition extends ICompositionConfig {
@@ -80,11 +81,14 @@ export default class Composition implements IComposition {
   }
 
   private async *transition(bpm: number): CompositionTransition {
-    for (const tact of this.pattern) {
-      for (const unit of tact.units) {
-        const fractions = unit.play(bpm)
-        for await (const fraction of fractions) {
-          yield { fraction, tact }
+    for (const [tactIndex, tact] of this.pattern.entries()) {
+      for (const [unitIndex, unit] of tact.units.entries()) {
+        const beats = unit.play(bpm)
+        for await (const beat of beats) {
+          yield {
+            beat: { ...beat, index: unitIndex },
+            tact: { ...tact, index: tactIndex }
+          }
         }
       }
     }

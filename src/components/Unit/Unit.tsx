@@ -23,7 +23,7 @@ const UnitComponent: React.FC<IUnitProps> = ({ unit, selected = false }) => {
   }
 
   if (isRoll(unit)) {
-    component = <Roll notes={unit.children} />;
+    component = <Roll beats={unit.children} />;
   }
 
   return (

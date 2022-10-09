@@ -14,20 +14,25 @@ export enum UnitType {
 export default interface Unit {
   readonly kind: UnitKind
   readonly type: UnitType
-  readonly index: number
-  play: (bpm: number) => AsyncGenerator<Unit>
+  play: (bpm: number) => AsyncGenerator<Unit & WithFrequencies>
   check: (receivedFrequency: Frequency) => boolean
 }
 
-export interface SingleUnit extends Unit {
-  readonly kind: UnitKind.Single
-  readonly type: UnitType.Note
-  readonly symbol: string
-  readonly color: string
+export interface WithFrequencies {
   readonly frequencies: Frequency[]
 }
 
-export interface CompositeUnit<Children extends SingleUnit[]> extends Unit {
+export interface Renderable {
+  readonly symbol: string
+  readonly color: string
+}
+
+export interface SingleUnit extends Unit, Renderable, WithFrequencies {
+  readonly kind: UnitKind.Single
+  readonly type: UnitType.Note
+}
+
+export interface CompositeUnit<Children extends Unit[]> extends Unit {
   readonly kind: UnitKind.Composite
   readonly type: UnitType.Chord | UnitType.Roll
   readonly children: Children

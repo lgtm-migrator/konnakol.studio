@@ -1,7 +1,7 @@
 import "./Tact.css";
 
 import UnitComponent from "~/components/Unit";
-import Unit from '~/entities/unit/model/Unit';
+import Unit from "~/entities/unit/model/Unit";
 
 interface ITactProps {
   units: Unit[];
@@ -12,11 +12,11 @@ interface ITactProps {
 function Tact(props: ITactProps) {
   return (
     <div className={`tact ${props.selected ? "tact_selected" : ""}`}>
-      {props.units.map((unit) => (
+      {props.units.map((unit, index) => (
         <UnitComponent
-          key={unit.index}
+          key={index}
           unit={unit}
-          selected={props.selectedUnitIndex === unit.index}
+          selected={props.selectedUnitIndex === index}
         />
       ))}
     </div>

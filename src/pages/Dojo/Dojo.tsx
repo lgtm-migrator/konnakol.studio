@@ -17,11 +17,10 @@ import {
   $frequency,
   $pitcher,
   $isListening,
-  $tact,
   $isPlaying,
   $isRepeating,
-  $fraction,
   compositionRequested,
+  $compositionState,
 } from "~/features/dojo/model";
 import { useStore } from "effector-react";
 import { $failed, $success } from "~/features/dojo/model/score";
@@ -35,8 +34,7 @@ function Dojo() {
   const isPlaying = useStore($isPlaying);
   const isListening = useStore($isListening);
   const isRepeating = useStore($isRepeating);
-  const tact = useStore($tact);
-  const fraction = useStore($fraction);
+  const compositionState = useStore($compositionState);
   const successScore = useStore($success);
   const failedScore = useStore($failed);
 
@@ -44,8 +42,8 @@ function Dojo() {
   const { compositionId } = useParams();
 
   const expectedFrequencies = useMemo(
-    () => fraction?.frequencies ?? [],
-    [fraction]
+    () => compositionState?.beat.frequencies ?? [],
+    [compositionState]
   );
 
   useEffect(() => {
@@ -121,11 +119,11 @@ function Dojo() {
             ))}
           </div>
           <div className="composition__pattern">
-            {composition.pattern.map(({ units, index }) => (
+            {composition.pattern.map(({ units }, index) => (
               <Tact
                 key={index}
-                selected={tact?.index === index}
-                selectedUnitIndex={fraction?.index}
+                selected={compositionState?.tact.index === index}
+                selectedUnitIndex={compositionState?.beat.index}
                 units={units}
               />
             ))}

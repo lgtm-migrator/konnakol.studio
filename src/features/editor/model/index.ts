@@ -7,39 +7,39 @@ import Unit, { SingleUnit, UnitType } from '~/entities/unit/model/Unit';
 import {
   createUnitButtonClicked,
   createUnitDialogClosed,
+  editUnitButtonClicked,
   editUnitDialogOpened,
   newUnitFrequencyChanged,
   newUnitSymbolChanged,
   newUnitTypeSelected,
 } from '~/features/editor/ui';
 import { Frequency } from '~/types/fraction.types';
+import { NonNullableStructure } from '~/utils/types.utils';
 
 interface ICreateUnitFxParams {
-  units: Unit[]
-  newUnit: {
-    type: UnitType,
-    frequencies: Frequency[],
-    symbol: string
-  }
+  type: UnitType
+  frequencies: Frequency[]
+  symbol: string
 }
 
-export const createUnitFx = createEffect(async ({ newUnit, units }: ICreateUnitFxParams) => {
-  const newUnitIndex = units.length
+interface IEditUnitFxSource {
+  units: Unit[]
+  newUnit: Unit | null
+  index: number | null
+}
 
+export const createUnitFx = createEffect(async (newUnit: ICreateUnitFxParams) => {
   switch (newUnit.type) {
     case UnitType.Note: {
-      return [
-        new Note(newUnitIndex, { frequencies: newUnit.frequencies, symbol: newUnit.symbol }),
-        ...units
-      ]
+      return new Note({ frequencies: newUnit.frequencies, symbol: newUnit.symbol })
     }
 
     case UnitType.Chord: {
-      return [new Chord(newUnitIndex, []), ...units]
+      return new Chord([])
     }
 
     case UnitType.Roll: {
-      return [new Roll(newUnitIndex, []), ...units]
+      return new Roll([])
     }
   }
 })
@@ -54,9 +54,6 @@ export const $newUnitFrequencies = createStore<Frequency[]>([0])
 export const $newUnitSymbol = createStore<string>('')
 
 export const $editableUnitIndex = createStore<number | null>(null)
-export const $editableUnitType = createStore<UnitType>(UnitType.Note)
-export const $editableUnitFrequencies = createStore<Frequency[]>([0])
-export const $editableUnitSymbol = createStore<string>('')
 export const $editableUnit = combine(
   $units,
   $editableUnitIndex,
@@ -72,15 +69,14 @@ export const $editableUnit = combine(
 
 sample({
   clock: createUnitButtonClicked,
-  source: {
-    units: $units,
-    newUnit: combine({ type: $newUnitType, frequencies: $newUnitFrequencies, symbol: $newUnitSymbol })
-  },
+  source: combine({ type: $newUnitType, frequencies: $newUnitFrequencies, symbol: $newUnitSymbol }),
   target: createUnitFx
 })
 
 sample({
   clock: createUnitFx.doneData,
+  source: $units,
+  fn: (units, newUnit) => [...units, newUnit],
   target: $units
 })
 
@@ -109,4 +105,14 @@ sample({
 sample({
   clock: editUnitDialogOpened,
   target: $editableUnitIndex
+})
+
+sample({
+  clock: editUnitButtonClicked,
+  source: { units: $units, newUnit: $editableUnit, index: $editableUnitIndex },
+  filter: (source: IEditUnitFxSource): source is NonNullableStructure<IEditUnitFxSource> => (
+    source.index !== null && source.newUnit !== null
+  ),
+  fn: ({ units, index, newUnit }) => units.map((prev, i) => i === index ? newUnit : prev),
+  target: $units
 })

@@ -1,21 +1,21 @@
 import { createEffect, createStore, sample } from 'effector';
 import { UnitType } from '~/entities/unit/model';
-import type { Frequency } from '~/types/fraction.types';
-import { $isCreateUnitDialogOpened, createUnitButtonClicked, newUnitFrequencyChanged, newUnitSymbolChanged, newUnitTypeSelected } from '~/features/editor/ui/create-unit-form';
+import { $isCreateUnitDialogOpened, addUnitFrequencyButtonClicked, createUnitButtonClicked, createUnitDialogClosed, newUnitFrequencyChanged, newUnitSymbolChanged, newUnitTypeSelected, removeUnitFrequencyButtonClicked } from '~/features/editor/ui/create-unit-form';
 import Note from '~/entities/unit/model/Note';
 import Chord from '~/entities/unit/model/Chord';
 import Roll from '~/entities/unit/model/Roll';
+import { reset } from 'patronum';
 
 interface ICreateUnitFxParams {
   type: UnitType
-  frequencies: Frequency[]
+  frequencies: string[]
   symbol: string
 }
 
 export const createUnitFx = createEffect(async (newUnit: ICreateUnitFxParams) => {
   switch (newUnit.type) {
     case UnitType.Note: {
-      return new Note({ frequencies: newUnit.frequencies, symbol: newUnit.symbol })
+      return new Note({ frequencies: newUnit.frequencies.map(Number), symbol: newUnit.symbol })
     }
 
     case UnitType.Chord: {
@@ -29,7 +29,7 @@ export const createUnitFx = createEffect(async (newUnit: ICreateUnitFxParams) =>
 })
 
 export const $newUnitType = createStore<UnitType>(UnitType.Note)
-export const $newUnitFrequencies = createStore<Frequency[]>([0])
+export const $newUnitFrequencies = createStore<string[]>([""])
 export const $newUnitSymbol = createStore<string>('')
 
 sample({
@@ -40,7 +40,7 @@ sample({
 sample({
   clock: newUnitFrequencyChanged,
   source: $newUnitFrequencies,
-  fn: (freqs, [freqIdx, newFreq]) => freqs.map((fr, i) => i === freqIdx ? Number(newFreq) : fr),
+  fn: (freqs, [freqIdx, newFreq]) => freqs.map((fr, i) => i === freqIdx ? newFreq : fr),
   target: $newUnitFrequencies
 })
 
@@ -59,4 +59,24 @@ sample({
   clock: createUnitFx.done,
   fn: () => false,
   target: $isCreateUnitDialogOpened
+})
+
+sample({
+  clock: addUnitFrequencyButtonClicked,
+  source: $newUnitFrequencies,
+  fn: (prev) => [...prev, ""],
+  target: $newUnitFrequencies
+})
+
+sample({
+  clock: removeUnitFrequencyButtonClicked,
+  source: $newUnitFrequencies,
+  filter: Boolean,
+  fn: (freqs, index) => freqs.filter((_, i) => i !== index),
+  target: $newUnitFrequencies
+})
+
+reset({
+  clock: createUnitDialogClosed,
+  target: [$newUnitFrequencies, $newUnitSymbol, $newUnitType]
 })

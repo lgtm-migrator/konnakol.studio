@@ -8,8 +8,9 @@ export const createUnitDialogClosed = createEvent()
 export const newUnitTypeSelected = createEvent<UnitType>()
 export const newUnitFrequencyChanged = createEvent<[FrequencyIndex, string]>()
 export const newUnitSymbolChanged = createEvent<string>()
-
 export const createUnitButtonClicked = createEvent()
+export const addUnitFrequencyButtonClicked = createEvent()
+export const removeUnitFrequencyButtonClicked = createEvent<FrequencyIndex>()
 
 export const $isCreateUnitDialogOpened = createStore(false)
 

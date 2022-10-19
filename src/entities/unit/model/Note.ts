@@ -21,10 +21,6 @@ export default class Note implements SingleUnit, Renderable, WithFrequencies {
   color: string
 
   constructor(config: NoteConfig) {
-    if (config.frequencies.length > 1) {
-      throw new Error('Fraction can have one or no possible frequencies.')
-    }
-
     this.frequencies = config.frequencies
     this.color = config.color ?? 'black'
     this.symbol = config.symbol

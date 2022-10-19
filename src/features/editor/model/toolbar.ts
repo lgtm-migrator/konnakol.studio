@@ -13,3 +13,5 @@ sample({
   fn: (units, newUnit) => [...units, newUnit],
   target: $units
 })
+
+createUnitFx.doneData.watch(console.log)

@@ -8,24 +8,34 @@ import {
   MenuItem,
   DialogActions,
   Button,
+  IconButton,
+  InputAdornment,
 } from "@mui/material";
+import AddIcon from "@mui/icons-material/Add";
+import RemoveIcon from "@mui/icons-material/Delete";
 import { useStore } from "effector-react";
 import { UnitType } from "~/entities/unit/model";
-import { $newUnitType } from "~/features/editor/model/create-unit";
+import {
+  $newUnitFrequencies,
+  $newUnitType,
+} from "~/features/editor/model/create-unit";
 import { $singleUnits } from "~/features/editor/model/toolbar";
 import {
   $isCreateUnitDialogOpened,
+  addUnitFrequencyButtonClicked,
   createUnitButtonClicked,
   createUnitDialogClosed,
   newUnitFrequencyChanged,
   newUnitSymbolChanged,
-  newUnitTypeSelected
+  newUnitTypeSelected,
+  removeUnitFrequencyButtonClicked,
 } from "~/features/editor/ui/create-unit-form";
 import SingleUnitCollection from "./SingleUnitCollection";
 
 function CreateUnitForm() {
   const unitType = useStore($newUnitType);
   const singleUnits = useStore($singleUnits);
+  const frequencies = useStore($newUnitFrequencies);
 
   switch (unitType) {
     case UnitType.Note: {
@@ -39,16 +49,43 @@ function CreateUnitForm() {
             variant="standard"
             onChange={({ target: { value } }) => newUnitSymbolChanged(value)}
           />
-          <TextField
-            fullWidth
-            margin="dense"
-            label="Frequency"
-            type="number"
-            variant="standard"
-            onChange={({ target: { value } }) =>
-              newUnitFrequencyChanged([0, value])
-            }
-          />
+          <div className="create-unit-form__frequencies">
+            {frequencies.map((freq, i) => (
+              <TextField
+                key={i}
+                margin="dense"
+                label="Frequency"
+                value={freq}
+                type="number"
+                className="create-unit-form__frequency-input"
+                variant="standard"
+                onChange={({ target: { value } }) =>
+                  newUnitFrequencyChanged([i, value])
+                }
+                InputProps={{
+                  endAdornment: (
+                    <InputAdornment position="end">
+                      <IconButton
+                        color="error"
+                        onClick={() => removeUnitFrequencyButtonClicked(i)}
+                        edge="end"
+                      >
+                        <RemoveIcon />
+                      </IconButton>
+                    </InputAdornment>
+                  ),
+                }}
+              />
+            ))}
+
+            <IconButton
+              color="primary"
+              className="create-unit-form__add-frequency-button"
+              onClick={() => addUnitFrequencyButtonClicked()}
+            >
+              <AddIcon />
+            </IconButton>
+          </div>
         </>
       );
     }

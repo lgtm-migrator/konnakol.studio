@@ -14,14 +14,14 @@ interface IEditUnitFxParams {
 }
 
 interface IEditNoteParams extends IEditUnitFxParams {
-  frequencies: Frequency[]
+  frequencies: string[]
   symbol: string
 }
 
 export const editUnitFx = createEffect(async ({ unit, frequencies, symbol, index }: IEditNoteParams) => {
   switch (unit.type) {
     case UnitType.Note: {
-      return { unit: new Note({ frequencies, symbol }), index }
+      return { unit: new Note({ frequencies: frequencies.map(Number), symbol }), index }
     }
 
     case UnitType.Chord: {
@@ -40,7 +40,7 @@ export const $editableUnit = combine(
   (units, index) => index !== null ? units.at(index) ?? null : null // TODO: refactor
 )
 
-export const $frequencies = createStore<Frequency[] | null>(null)
+export const $frequencies = createStore<string[] | null>(null)
 export const $symbol = createStore<string | null>(null)
 
 sample({
@@ -58,7 +58,7 @@ sample({
 sample({
   clock: $editableUnit,
   filter: (unit: Unit | null): unit is Unit & WithFrequencies => Boolean(unit && hasFrequencies(unit)),
-  fn: ({ frequencies }) => frequencies,
+  fn: ({ frequencies }) => frequencies.map(String),
   target: $frequencies
 })
 

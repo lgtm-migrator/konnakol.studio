@@ -19,3 +19,18 @@
   grid-template-columns: repeat(3, 1fr);
   grid-auto-flow: row;
 }
+
+.create-unit-form__frequencies {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.create-unit-form__frequency-input {
+  width: calc(25% - 20px)
+}
+
+.create-unit-form__add-frequency-button {
+
+}

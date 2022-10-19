@@ -33,11 +33,6 @@ function EditUnitForm() {
   const symbol = useStore($symbol);
   const frequencies = useStore($frequencies);
 
-  const onFrequencyChanged = (value: string) => {
-    // validate(value)
-    editableUnitFrequencyChanged([0, +value]);
-  };
-
   switch (unit?.type) {
     case UnitType.Note: {
       return (
@@ -54,16 +49,19 @@ function EditUnitForm() {
             }
           />
           {frequencies &&
-            frequencies.map((freq, key) => (
+            frequencies.map((freq, i) => (
               <TextField
-                key={key}
+                key={i}
                 fullWidth
                 margin="dense"
                 label="Frequency"
                 type="number"
                 variant="standard"
                 value={freq}
-                onChange={({ target: { value } }) => onFrequencyChanged(value)}
+                required
+                onChange={({ target: { value } }) =>
+                  editableUnitFrequencyChanged([i, value])
+                }
               />
             ))}
         </>

@@ -12,14 +12,11 @@ import {
 import { useStore } from "effector-react";
 import { UnitType } from "~/entities/unit/model";
 import {
+  $frequencies,
+  $symbol,
   $editableUnit,
-  $editableUnitIndex,
-  $newUnitFrequencies,
-  $newUnitSymbol,
-  $newUnitType,
-  $singleUnits,
-  $units,
-} from "~/features/editor/model";
+} from "~/features/editor/model/edit-unit";
+import { $singleUnits } from "~/features/editor/model/toolbar";
 import {
   $isEditUnitDialogOpened,
   editableUnitFrequencyChanged,
@@ -27,16 +24,21 @@ import {
   editableUnitTypeSelected,
   editUnitButtonClicked,
   editUnitDialogClosed,
-} from "~/features/editor/ui";
+} from "~/features/editor/ui/edit-unit-form";
 import SingleUnitCollection from "./SingleUnitCollection";
 
 function EditUnitForm() {
-  const unitType = useStore($newUnitType);
+  const unit = useStore($editableUnit);
   const singleUnits = useStore($singleUnits);
-  const symbol = useStore($newUnitSymbol);
-  const frequencies = useStore($newUnitFrequencies);
+  const symbol = useStore($symbol);
+  const frequencies = useStore($frequencies);
 
-  switch (unitType) {
+  const onFrequencyChanged = (value: string) => {
+    // validate(value)
+    editableUnitFrequencyChanged([0, +value]);
+  };
+
+  switch (unit?.type) {
     case UnitType.Note: {
       return (
         <>
@@ -51,20 +53,19 @@ function EditUnitForm() {
               editableUnitSymbolChanged(value)
             }
           />
-          {frequencies.map((freq, key) => (
-            <TextField
-              key={key}
-              fullWidth
-              margin="dense"
-              label="Frequency"
-              type="number"
-              variant="standard"
-              value={freq}
-              onChange={({ target: { value } }) =>
-                editableUnitFrequencyChanged([0, value])
-              }
-            />
-          ))}
+          {frequencies &&
+            frequencies.map((freq, key) => (
+              <TextField
+                key={key}
+                fullWidth
+                margin="dense"
+                label="Frequency"
+                type="number"
+                variant="standard"
+                value={freq}
+                onChange={({ target: { value } }) => onFrequencyChanged(value)}
+              />
+            ))}
         </>
       );
     }
@@ -75,6 +76,10 @@ function EditUnitForm() {
 
     case UnitType.Roll: {
       return <SingleUnitCollection units={singleUnits} />;
+    }
+
+    default: {
+      return <>Invalid unit: {unit?.type}</>;
     }
   }
 }

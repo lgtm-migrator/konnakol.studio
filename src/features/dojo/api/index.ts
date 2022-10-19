@@ -1,5 +1,4 @@
 import { createEffect, createStore, sample } from 'effector';
-import { buffer } from 'stream/consumers';
 import { Pitcher } from './pitcher';
 import { initializeWebAudioApi, IWebAudioAPI } from './web-audio';
 

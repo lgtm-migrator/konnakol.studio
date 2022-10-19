@@ -11,18 +11,19 @@ import {
 } from "@mui/material";
 import { useStore } from "effector-react";
 import { UnitType } from "~/entities/unit/model";
-import { $newUnitType, $singleUnits } from "~/features/editor/model";
+import { $newUnitType } from "~/features/editor/model/create-unit";
+import { $singleUnits } from "~/features/editor/model/toolbar";
 import {
-  newUnitSymbolChanged,
-  newUnitFrequencyChanged,
-  createUnitButtonClicked,
-  newUnitTypeSelected,
-  createUnitDialogClosed,
   $isCreateUnitDialogOpened,
-} from "~/features/editor/ui";
+  createUnitButtonClicked,
+  createUnitDialogClosed,
+  newUnitFrequencyChanged,
+  newUnitSymbolChanged,
+  newUnitTypeSelected
+} from "~/features/editor/ui/create-unit-form";
 import SingleUnitCollection from "./SingleUnitCollection";
 
-function AddUnitForm() {
+function CreateUnitForm() {
   const unitType = useStore($newUnitType);
   const singleUnits = useStore($singleUnits);
 
@@ -89,7 +90,7 @@ function CreateUnitDialog() {
             <MenuItem value={UnitType.Roll}>Roll</MenuItem>
           </Select>
 
-          <AddUnitForm />
+          <CreateUnitForm />
         </DialogContent>
         <DialogActions>
           <Button onClick={close}>Cancel</Button>

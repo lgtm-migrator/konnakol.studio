@@ -3,14 +3,12 @@ import AddIcon from "@mui/icons-material/Add";
 import { useParams } from "react-router-dom";
 import { Button, IconButton } from "@mui/material";
 import { useStore } from "effector-react";
-import {
-  createUnitDialogOpened,
-  editUnitDialogOpened,
-} from "~/features/editor/ui";
-import { $units } from "~/features/editor/model";
 import UnitComponent from "~/components/Unit";
-import AddUnitDialog from "./AddUnitDialog";
+import AddUnitDialog from "./CreateUnitDialog";
 import EditUnitDialog from "./EditUnitDialog";
+import { createUnitDialogOpened } from '~/features/editor/ui/create-unit-form';
+import { editUnitDialogOpened } from '~/features/editor/ui/edit-unit-form';
+import { $units } from '~/features/editor/model/toolbar';
 
 function Editor() {
   const { compositionId } = useParams();

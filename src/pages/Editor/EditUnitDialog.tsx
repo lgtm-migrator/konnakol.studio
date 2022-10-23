@@ -19,13 +19,15 @@ import {
 import { $singleUnits } from "~/features/editor/model/toolbar";
 import {
   $isEditUnitDialogOpened,
+  editableUnitFrequencyAdded,
   editableUnitFrequencyChanged,
+  editableUnitFrequencyRemoved,
   editableUnitSymbolChanged,
   editableUnitTypeSelected,
   editUnitButtonClicked,
   editUnitDialogClosed,
 } from "~/features/editor/ui/edit-unit-form";
-import SingleUnitCollection from "./SingleUnitCollection";
+import FrequenciesGrid from "./FrequenciesGrid";
 
 function EditUnitForm() {
   const unit = useStore($editableUnit);
@@ -33,7 +35,11 @@ function EditUnitForm() {
   const symbol = useStore($symbol);
   const frequencies = useStore($frequencies);
 
-  switch (unit?.type) {
+  if (!unit) {
+    return null;
+  }
+
+  switch (unit.type) {
     case UnitType.Note: {
       return (
         <>
@@ -48,38 +54,18 @@ function EditUnitForm() {
               editableUnitSymbolChanged(value)
             }
           />
-          {frequencies &&
-            frequencies.map((freq, i) => (
-              <TextField
-                key={i}
-                fullWidth
-                margin="dense"
-                label="Frequency"
-                type="number"
-                variant="standard"
-                value={freq}
-                required
-                onChange={({ target: { value } }) =>
-                  editableUnitFrequencyChanged([i, value])
-                }
-              />
-            ))}
+          <FrequenciesGrid
+            frequencies={frequencies}
+            addFrequency={editableUnitFrequencyAdded}
+            changeFrequency={editableUnitFrequencyChanged}
+            removeFrequency={editableUnitFrequencyRemoved}
+          />
         </>
       );
     }
-
-    case UnitType.Chord: {
-      return <SingleUnitCollection units={singleUnits} />;
-    }
-
-    case UnitType.Roll: {
-      return <SingleUnitCollection units={singleUnits} />;
-    }
-
-    default: {
-      return <>Invalid unit: {unit?.type}</>;
-    }
   }
+
+  return <h1>unhandled unit</h1>;
 }
 
 function EditUnitDialog() {

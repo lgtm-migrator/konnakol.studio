@@ -5,8 +5,11 @@ import { FrequencyIndex, ToolbarUnitIndex } from './shared'
 export const editUnitDialogOpened = createEvent<ToolbarUnitIndex>()
 export const editUnitDialogClosed = createEvent()
 
+// TODO: refactor naming
 export const editableUnitTypeSelected = createEvent<UnitType>()
 export const editableUnitFrequencyChanged = createEvent<[FrequencyIndex, string]>()
+export const editableUnitFrequencyAdded = createEvent()
+export const editableUnitFrequencyRemoved = createEvent<FrequencyIndex>()
 export const editableUnitSymbolChanged = createEvent<string>()
 export const editUnitButtonClicked = createEvent()
 

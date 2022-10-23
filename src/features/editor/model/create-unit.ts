@@ -57,8 +57,7 @@ sample({
 
 sample({
   clock: createUnitFx.done,
-  fn: () => false,
-  target: $isCreateUnitDialogOpened
+  target: createUnitDialogClosed
 })
 
 sample({

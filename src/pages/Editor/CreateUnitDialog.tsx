@@ -10,9 +10,9 @@ import {
   Button,
   IconButton,
   InputAdornment,
+  Grid,
 } from "@mui/material";
-import AddIcon from "@mui/icons-material/Add";
-import RemoveIcon from "@mui/icons-material/Delete";
+
 import { useStore } from "effector-react";
 import { UnitType } from "~/entities/unit/model";
 import {
@@ -30,6 +30,7 @@ import {
   newUnitTypeSelected,
   removeUnitFrequencyButtonClicked,
 } from "~/features/editor/ui/create-unit-form";
+import FrequenciesGrid from "./FrequenciesGrid";
 import SingleUnitCollection from "./SingleUnitCollection";
 
 function CreateUnitForm() {
@@ -49,43 +50,12 @@ function CreateUnitForm() {
             variant="standard"
             onChange={({ target: { value } }) => newUnitSymbolChanged(value)}
           />
-          <div className="create-unit-form__frequencies">
-            {frequencies.map((freq, i) => (
-              <TextField
-                key={i}
-                margin="dense"
-                label="Frequency"
-                value={freq}
-                type="number"
-                className="create-unit-form__frequency-input"
-                variant="standard"
-                onChange={({ target: { value } }) =>
-                  newUnitFrequencyChanged([i, value])
-                }
-                InputProps={{
-                  endAdornment: (
-                    <InputAdornment position="end">
-                      <IconButton
-                        color="error"
-                        onClick={() => removeUnitFrequencyButtonClicked(i)}
-                        edge="end"
-                      >
-                        <RemoveIcon />
-                      </IconButton>
-                    </InputAdornment>
-                  ),
-                }}
-              />
-            ))}
-
-            <IconButton
-              color="primary"
-              className="create-unit-form__add-frequency-button"
-              onClick={() => addUnitFrequencyButtonClicked()}
-            >
-              <AddIcon />
-            </IconButton>
-          </div>
+          <FrequenciesGrid
+            frequencies={frequencies}
+            addFrequency={addUnitFrequencyButtonClicked}
+            changeFrequency={newUnitFrequencyChanged}
+            removeFrequency={removeUnitFrequencyButtonClicked}
+          />
         </>
       );
     }

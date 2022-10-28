@@ -1,12 +1,12 @@
 .editor {
   display: grid;
-  grid-template-areas: 
-    "toolbar heading"
-    "toolbar sheet";
-  grid-template-columns: .2fr .8fr;
+  grid-template-areas:
+    "sidebar heading"
+    "sidebar sheet";
+  grid-template-columns: .3fr .7fr;
   gap: 20px;
-  padding: 20px;
-  padding-right: 100px;
+  padding-bottom: 50px;
+  padding-right: 50px;
 }
 
 .editor__heading {
@@ -16,9 +16,11 @@
   column-gap: 20px;
 }
 
-.editor__toolbar {
-  grid-area: toolbar;
-  max-width: 20%;
+.editor__sidebar {
+  grid-area: sidebar;
+  display: grid;
+  grid-template-columns: .2fr .8fr;
+  background-color: lightgrey;
 }
 
 .toolbar__unit-button {
@@ -27,7 +29,7 @@
 
 .toolbar__units {
   display: grid;
-  align-items: center;
+  padding-top: 8px;
   gap: 15px;
   grid-template-columns: repeat(3, 1fr);
   grid-auto-flow: row;

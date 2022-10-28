@@ -42,7 +42,6 @@ function parseKonnakol(unitsShortcutsMapping: ShorcutsToUnits, konnakol: string)
 
                 if (isChord) {
                   const chordSymbols = symbol.replaceAll(/\(|\)/g, '').split('|')
-
                   return new Chord(
                     chordSymbols.map(symbol => {
                       const unit = unitsShortcutsMapping[symbol]

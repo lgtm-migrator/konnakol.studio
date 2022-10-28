@@ -5,6 +5,7 @@ import Chord from "~/components/Chord";
 import Roll from "~/components/Roll";
 import { isChord, isNote, isRoll } from "~/entities/unit/model";
 import Unit from "~/entities/unit/model/Unit";
+import classNames from "classnames";
 
 interface IUnitProps {
   unit: Unit;
@@ -13,7 +14,7 @@ interface IUnitProps {
 
 const UnitComponent: React.FC<IUnitProps> = ({ unit, selected = false }) => {
   let component = <div>???</div>;
-  
+
   if (isNote(unit)) {
     component = <Note symbol={unit.symbol} color={unit.color} />;
   }
@@ -28,7 +29,9 @@ const UnitComponent: React.FC<IUnitProps> = ({ unit, selected = false }) => {
 
   return (
     <div
-      className={`unit unit--${unit.kind} ${selected ? "unit--selected" : ""}`}
+      className={classNames("unit-wrapper", {
+        "unit-wrapper--selected": selected,
+      })}
     >
       {component}
     </div>

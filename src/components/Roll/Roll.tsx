@@ -10,7 +10,7 @@ interface IRollComponentProps extends Selectable {
 
 const RollComponent: React.FC<IRollComponentProps> = ({ beats }) => {
   return (
-    <>
+    <div className="unit--type--roll">
       {beats.map((beat, i) => {
         if (isChord(beat)) {
           return <ChordComponent notes={beat.children} key={i} />;
@@ -20,7 +20,7 @@ const RollComponent: React.FC<IRollComponentProps> = ({ beats }) => {
           <NoteComponent symbol={beat.symbol} color={beat.color} key={i} />
         );
       })}
-    </>
+    </div>
   );
 };
 

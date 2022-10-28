@@ -4,7 +4,7 @@ import Tact from '~/entities/composition/model/Tact';
 import Chord from '~/entities/unit/model/Chord';
 import Note, { isNote } from '~/entities/unit/model/Note';
 import Roll from '~/entities/unit/model/Roll';
-import { konnakolChanged } from '../ui';
+import { compositionNameChanged, editCompositionNameButtonClicked, konnakolChanged, saveCompositionNameButtonClicked } from '../ui';
 import { $unitsAsMapping, ShorcutsToUnits } from './toolbar';
 
 function parseKonnakol(unitsShortcutsMapping: ShorcutsToUnits, konnakol: string): Pattern {
@@ -73,7 +73,9 @@ function parseKonnakol(unitsShortcutsMapping: ShorcutsToUnits, konnakol: string)
     ))
 }
 
+export const $compositionName = createStore('');
 export const $konnakol = createStore('');
+export const $isCompositionNameEditing = createStore(false);
 
 export const $composition = combine(
   $unitsAsMapping,
@@ -85,5 +87,23 @@ sample({
   clock: konnakolChanged,
   target: $konnakol
 })
+
+sample({
+  clock: compositionNameChanged,
+  target: $compositionName
+})
+
+sample({
+  clock: editCompositionNameButtonClicked,
+  fn: () => true,
+  target: $isCompositionNameEditing
+})
+
+sample({
+  clock: saveCompositionNameButtonClicked,
+  fn: () => false,
+  target: $isCompositionNameEditing
+})
+
 
 

@@ -1,11 +1,23 @@
 .editor {
   display: grid;
+  grid-template-areas: 
+    "toolbar heading"
+    "toolbar sheet";
   grid-template-columns: .2fr .8fr;
-  column-gap: 20px;
+  gap: 20px;
   padding: 20px;
+  padding-right: 100px;
+}
+
+.editor__heading {
+  grid-area: heading;
+  display: flex;
+  align-items: center;
+  column-gap: 20px;
 }
 
 .editor__toolbar {
+  grid-area: toolbar;
   max-width: 20%;
 }
 
@@ -22,6 +34,7 @@
 }
 
 .sheet {
+  grid-area: sheet;
   display: grid;
   grid-auto-flow: row;
   row-gap: 30px;

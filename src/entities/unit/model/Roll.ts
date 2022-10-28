@@ -9,7 +9,7 @@ import Unit, { CompositeUnit, UnitKind, UnitType } from './Unit';
 
 export const isRoll = (unit: Unit): unit is Roll => unit instanceof Roll
 
-export type RollChildren = (Chord | Note)[]
+export type RollChildren = (Note | Chord)[]
 
 export default class Roll implements CompositeUnit<RollChildren> {
   public readonly kind = UnitKind.Composite

@@ -8,22 +8,25 @@ interface NoteConfig {
   frequencies: Frequency[]
   symbol: string
   color?: string
+  shortcut?: string
 }
 
 export const isNote = (unit: Unit): unit is Note => unit instanceof Note
 
 export default class Note implements SingleUnit, Renderable, WithFrequencies {
-  kind: UnitKind.Single = UnitKind.Single
-  type: UnitType.Note = UnitType.Note
+  public readonly kind: UnitKind.Single = UnitKind.Single
+  public readonly type: UnitType.Note = UnitType.Note
 
-  frequencies: Frequency[]
-  symbol: string
-  color: string
+  public readonly frequencies: Frequency[]
+  public readonly symbol: string
+  public readonly color: string
+  public readonly shortcut: string
 
   constructor(config: NoteConfig) {
     this.frequencies = config.frequencies
     this.color = config.color ?? 'black'
     this.symbol = config.symbol
+    this.shortcut = config.shortcut || config.symbol
   }
 
   async *play(bpm: number) {

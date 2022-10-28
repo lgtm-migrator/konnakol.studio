@@ -1,9 +1,9 @@
-import { ChordNotes } from "~/entities/unit/model/shared";
+import { SingleUnit } from '~/entities/unit/model';
 import { Selectable } from '~/utils/types.utils';
 import "./Chord.css";
 
 interface IChordComponentProps extends Selectable {
-  notes: ChordNotes;
+  notes: SingleUnit[];
 }
 
 const ChordComponent: React.FC<IChordComponentProps> = ({ notes, selected }) => {

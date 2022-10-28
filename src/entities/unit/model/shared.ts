@@ -1,10 +1,3 @@
-import Note from './Note';
-import Unit, { WithFrequencies } from './Unit';
-
-export type ChordNotes =
-  | []
-  | [Note, Note]
-  | [Note, Note, Note]
-  | [Note, Note, Note, Note]
+import Unit, { SingleUnit, WithFrequencies } from './Unit';
 
 export type Beat = Unit & WithFrequencies

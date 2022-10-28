@@ -3,8 +3,6 @@ import NoteComponent from "~/components/Note";
 import ChordComponent from "~/components/Chord";
 import { Selectable } from "~/utils/types.utils";
 import { isChord, RollChildren } from "~/entities/unit/model";
-import Chord from "~/entities/unit/model/Chord";
-import Note from "~/entities/unit/model/Note";
 
 interface IRollComponentProps extends Selectable {
   beats: RollChildren;

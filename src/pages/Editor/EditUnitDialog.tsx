@@ -4,95 +4,58 @@ import {
   DialogTitle,
   DialogContent,
   DialogContentText,
-  Select,
-  MenuItem,
   DialogActions,
   Button,
 } from "@mui/material";
 import { useStore } from "effector-react";
-import { UnitType } from "~/entities/unit/model";
 import {
   $frequencies,
   $symbol,
   $editableUnit,
 } from "~/features/editor/model/edit-unit";
-import { $singleUnits } from "~/features/editor/model/toolbar";
 import {
   $isEditUnitDialogOpened,
   editableUnitFrequencyAdded,
   editableUnitFrequencyChanged,
   editableUnitFrequencyRemoved,
   editableUnitSymbolChanged,
-  editableUnitTypeSelected,
   editUnitButtonClicked,
   editUnitDialogClosed,
 } from "~/features/editor/ui/edit-unit-form";
 import FrequenciesGrid from "./FrequenciesGrid";
 
-function EditUnitForm() {
-  const unit = useStore($editableUnit);
-  const singleUnits = useStore($singleUnits);
-  const symbol = useStore($symbol);
-  const frequencies = useStore($frequencies);
-
-  if (!unit) {
-    return null;
-  }
-
-  switch (unit.type) {
-    case UnitType.Note: {
-      return (
-        <>
-          <TextField
-            fullWidth
-            margin="dense"
-            label="Symbol"
-            type="text"
-            variant="standard"
-            value={symbol}
-            onChange={({ target: { value } }) =>
-              editableUnitSymbolChanged(value)
-            }
-          />
-          <FrequenciesGrid
-            frequencies={frequencies}
-            addFrequency={editableUnitFrequencyAdded}
-            changeFrequency={editableUnitFrequencyChanged}
-            removeFrequency={editableUnitFrequencyRemoved}
-          />
-        </>
-      );
-    }
-  }
-
-  return <h1>unhandled unit</h1>;
-}
-
 function EditUnitDialog() {
   const unit = useStore($editableUnit);
   const open = useStore($isEditUnitDialogOpened);
+  const symbol = useStore($symbol);
+  const frequencies = useStore($frequencies);
   const close = () => editUnitDialogClosed();
   const save = () => editUnitButtonClicked();
 
   return (
     <>
       {unit && (
-        <Dialog open={open} onClose={close}>
+        <Dialog open={open} onClose={close} fullWidth>
           <DialogTitle>Edit Unit</DialogTitle>
           <DialogContent>
             <DialogContentText>Edit existing unit.</DialogContentText>
-            <Select
-              value={unit.type}
+            <TextField
+              fullWidth
+              margin="dense"
+              label="Symbol"
+              type="text"
+              variant="standard"
+              value={symbol}
               onChange={({ target: { value } }) =>
-                editableUnitTypeSelected(value as UnitType)
+                editableUnitSymbolChanged(value)
               }
-            >
-              <MenuItem value={UnitType.Note}>Note</MenuItem>
-              <MenuItem value={UnitType.Chord}>Chord</MenuItem>
-              <MenuItem value={UnitType.Roll}>Roll</MenuItem>
-            </Select>
-
-            <EditUnitForm />
+            />
+            <FrequenciesGrid
+              frequencies={frequencies}
+              addFrequency={editableUnitFrequencyAdded}
+              changeFrequency={editableUnitFrequencyChanged}
+              removeFrequency={editableUnitFrequencyRemoved}
+            />
           </DialogContent>
           <DialogActions>
             <Button onClick={close}>Cancel</Button>

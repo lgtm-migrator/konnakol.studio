@@ -4,8 +4,8 @@ import Tact from './Tact'
 
 type CompositionTransition = AsyncGenerator<ICompositionState>
 type UpdateHandler = (state: ICompositionState) => void
-type Pattern = Tact[]
 
+export type Pattern = Tact[]
 export type CompositionId = number
 
 export interface ICompositionConfig {

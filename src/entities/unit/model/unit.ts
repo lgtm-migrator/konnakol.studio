@@ -25,6 +25,7 @@ export interface WithFrequencies {
 export interface Renderable {
   readonly symbol: string
   readonly color: string
+  readonly shortcut: string
 }
 
 export interface SingleUnit extends Unit, Renderable, WithFrequencies {

@@ -1,36 +1,23 @@
 import { createEffect, createStore, sample } from 'effector';
 import { UnitType } from '~/entities/unit/model';
-import { $isCreateUnitDialogOpened, addUnitFrequencyButtonClicked, createUnitButtonClicked, createUnitDialogClosed, newUnitFrequencyChanged, newUnitSymbolChanged, newUnitTypeSelected, removeUnitFrequencyButtonClicked } from '~/features/editor/ui/create-unit-form';
+import { addUnitFrequencyButtonClicked, createUnitButtonClicked, createUnitDialogClosed, newUnitFrequencyChanged, newUnitSymbolChanged, newUnitTypeSelected, removeUnitFrequencyButtonClicked } from '~/features/editor/ui/create-unit-form';
 import Note from '~/entities/unit/model/Note';
-import Chord from '~/entities/unit/model/Chord';
-import Roll from '~/entities/unit/model/Roll';
 import { reset } from 'patronum';
 
 interface ICreateUnitFxParams {
-  type: UnitType
   frequencies: string[]
   symbol: string
+  shortcut: string
 }
 
-export const createUnitFx = createEffect(async (newUnit: ICreateUnitFxParams) => {
-  switch (newUnit.type) {
-    case UnitType.Note: {
-      return new Note({ frequencies: newUnit.frequencies.map(Number), symbol: newUnit.symbol })
-    }
-
-    case UnitType.Chord: {
-      return new Chord([])
-    }
-
-    case UnitType.Roll: {
-      return new Roll([])
-    }
-  }
+export const createUnitFx = createEffect(async ({ frequencies, symbol, shortcut }: ICreateUnitFxParams) => {
+  return new Note({ frequencies: frequencies.map(Number), symbol, shortcut })
 })
 
 export const $newUnitType = createStore<UnitType>(UnitType.Note)
 export const $newUnitFrequencies = createStore<string[]>([""])
 export const $newUnitSymbol = createStore<string>('')
+export const $newUnitShortcut = createStore<string>('')
 
 sample({
   clock: newUnitTypeSelected,
@@ -51,7 +38,7 @@ sample({
 
 sample({
   clock: createUnitButtonClicked,
-  source: { type: $newUnitType, frequencies: $newUnitFrequencies, symbol: $newUnitSymbol },
+  source: { type: $newUnitType, frequencies: $newUnitFrequencies, symbol: $newUnitSymbol, shortcut: $newUnitShortcut },
   target: createUnitFx
 })
 

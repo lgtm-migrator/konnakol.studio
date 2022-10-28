@@ -1,11 +1,16 @@
 import { createStore, sample } from 'effector'
-import Unit, { SingleUnit, UnitType } from '~/entities/unit/model/Unit'
+import { SingleUnit } from '~/entities/unit/model/Unit'
 import { createUnitFx } from './create-unit'
 
-export const $units = createStore<Unit[]>([])
-export const $singleUnits = $units.map(
-  units => units.filter<SingleUnit>((unit): unit is SingleUnit => unit.type === UnitType.Note)
-)
+export interface ShorcutsToUnits {
+  [shortcut: string]: SingleUnit
+}
+
+export const $units = createStore<SingleUnit[]>([])
+
+export const $unitsAsMapping = $units.map(
+  units => units.reduce<ShorcutsToUnits>((acc, u) => ({ ...acc, [u.shortcut]: u }), {})
+);
 
 sample({
   clock: createUnitFx.doneData,
@@ -14,4 +19,3 @@ sample({
   target: $units
 })
 
-createUnitFx.doneData.watch(console.log)

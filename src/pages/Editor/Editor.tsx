@@ -9,6 +9,7 @@ import EditUnitDialog from "./EditUnitDialog";
 import { createUnitDialogOpened } from "~/features/editor/ui/create-unit-form";
 import { editUnitDialogOpened } from "~/features/editor/ui/edit-unit-form";
 import { $units } from "~/features/editor/model/toolbar";
+import Sheet from "./Sheet";
 
 function Editor() {
   const { compositionId } = useParams();
@@ -33,11 +34,11 @@ function Editor() {
               <AddIcon />
             </IconButton>
           </div>
-          <AddUnitDialog />
-          <EditUnitDialog />
         </div>
       </aside>
-      <div className="editor__partitura"></div>
+      <Sheet />
+      <AddUnitDialog />
+      <EditUnitDialog />
     </main>
   );
 }

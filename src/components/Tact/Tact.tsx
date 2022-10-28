@@ -5,7 +5,7 @@ import Unit from "~/entities/unit/model/Unit";
 
 interface ITactProps {
   units: Unit[];
-  selected: boolean;
+  selected?: boolean;
   selectedUnitIndex?: number;
 }
 

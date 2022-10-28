@@ -1,15 +1,13 @@
 import { combine, createEffect, createStore, sample } from 'effector';
-import Unit, { hasFrequencies, isRenderable, Renderable, UnitType, WithFrequencies } from '~/entities/unit/model/Unit';
+import Unit, { hasFrequencies, isRenderable, Renderable, SingleUnit, UnitType, WithFrequencies } from '~/entities/unit/model/Unit';
 import { editableUnitFrequencyAdded, editableUnitFrequencyChanged, editableUnitFrequencyRemoved, editableUnitSymbolChanged, editUnitButtonClicked, editUnitDialogClosed, editUnitDialogOpened } from '~/features/editor/ui/edit-unit-form';
 import { $units } from '~/features/editor/model/toolbar';
 import Note from '~/entities/unit/model/Note';
-import Chord from '~/entities/unit/model/Chord';
-import Roll from '~/entities/unit/model/Roll';
 import { NonNullableStructure } from '~/utils/types.utils';
 
 interface IEditUnitFxParams {
   index: number
-  unit: Unit
+  unit: SingleUnit
 }
 
 interface IEditNoteParams extends IEditUnitFxParams {
@@ -17,20 +15,8 @@ interface IEditNoteParams extends IEditUnitFxParams {
   symbol: string
 }
 
-export const editUnitFx = createEffect(async ({ unit, frequencies, symbol, index }: IEditNoteParams) => {
-  switch (unit.type) {
-    case UnitType.Note: {
-      return { unit: new Note({ frequencies: frequencies.map(Number), symbol }), index }
-    }
-
-    case UnitType.Chord: {
-      return { unit: new Chord([]), index }
-    }
-
-    case UnitType.Roll: {
-      return { unit: new Roll([]), index }
-    }
-  }
+export const editUnitFx = createEffect(async ({ frequencies, symbol, index }: IEditNoteParams) => {
+  return { unit: new Note({ frequencies: frequencies.map(Number), symbol }), index }
 })
 
 export const $editableUnitIndex = createStore<number | null>(null)
@@ -49,14 +35,14 @@ sample({
 
 sample({
   clock: $editableUnit,
-  filter: (unit: Unit | null): unit is Unit & Renderable => Boolean(unit && isRenderable(unit)),
+  filter: (unit: Unit | null): unit is SingleUnit & Renderable => Boolean(unit && isRenderable(unit)),
   fn: ({ symbol }) => symbol,
   target: $symbol
 })
 
 sample({
   clock: $editableUnit,
-  filter: (unit: Unit | null): unit is Unit & WithFrequencies => Boolean(unit && hasFrequencies(unit)),
+  filter: (unit: Unit | null): unit is SingleUnit & WithFrequencies => Boolean(unit && hasFrequencies(unit)),
   fn: ({ frequencies }) => frequencies.map(String),
   target: $frequencies
 })

@@ -16,6 +16,7 @@ import UnitComponent from "~/components/Unit";
 import { createUnitDialogOpened } from "~/features/editor/ui/create-unit-form";
 import { editUnitDialogOpened } from "~/features/editor/ui/edit-unit-form";
 import { $units } from "~/features/editor/model/toolbar";
+import Note from "~/components/Note";
 
 const Sidebar = () => {
   const open = useStore($isSidebarOpen);
@@ -36,12 +37,12 @@ const Sidebar = () => {
           </IconButton>
         </ListItem>
       </ul>
-      <div className="editor__widget">
+      <div className="sidebar__widget">
         <div className="toolbar__units">
-          {units.map((unit, i) => (
+          {units.map(({ symbol }, i) => (
             <div className="toolbar__unit-button" key={i}>
-              <Button onClick={() => editUnitDialogOpened(i)}>
-                <UnitComponent unit={unit} />
+              <Button variant="outlined" onClick={() => editUnitDialogOpened(i)} >
+                <Note symbol={symbol} />
               </Button>
             </div>
           ))}

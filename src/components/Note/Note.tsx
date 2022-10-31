@@ -6,7 +6,7 @@ interface INoteComponentProps extends Selectable {
   color?: string;
 }
 
-function NoteComponent({ color, symbol }: INoteComponentProps) {
+function NoteComponent({ color = "black", symbol }: INoteComponentProps) {
   return <span style={{ color }}>{symbol}</span>;
 }
 

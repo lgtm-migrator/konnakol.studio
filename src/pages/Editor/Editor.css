@@ -4,7 +4,7 @@
     "appbar appbar"
     "sidebar sheet"
     "sidebar sheet";
-  grid-template-columns: minmax(0, .3fr) .7fr;
+  grid-template-columns: 3fr 7fr;
   height: 100%;
   column-gap: 20px;
 }
@@ -12,11 +12,12 @@
 .editor__sidebar {
   grid-area: sidebar;
   display: grid;
-  grid-template-columns: .2fr .8fr;
+  grid-template-columns: 2fr 8fr;
   min-height: 100vh;
 }
 
 .sidebar__widget {
+  overflow-x: scroll;
 }
 
 .activity-bar {
@@ -29,26 +30,23 @@
 }
 
 .toolbar__unit-button {
-  width: 100%;
+  width: min-content;
 }
 
 .toolbar__units {
-  display: grid;
+  display: flex;
   align-items: center;
+  flex-wrap: wrap;
   padding-top: 8px;
-  gap: 15px;
-  grid-template-columns: repeat(3, 1fr);
-  grid-auto-flow: row;
+  gap: 5px;
 }
 
 .sheet {
   grid-area: sheet;
-  display: grid;
-  grid-template-columns: 1fr;
-  grid-template-rows: min-content;
-  grid-auto-flow: row;
+  display: flex;
+  flex-direction: column;
   max-width: 100%;
-  row-gap: 10px;
+  row-gap: 30px;
   padding-top: 20px;
   padding-right: 20px;
 }
@@ -64,7 +62,7 @@
   column-gap: 20px;
 }
 
-.editor__widget {
+.sidebar__widget {
   padding: 10px;
   background-color: rgb(249, 248, 248);
 }

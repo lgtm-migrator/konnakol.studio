@@ -19,7 +19,7 @@ const Title = () => {
   return (
     <header className="editor__title">
       {!isCompositionNameEditing ? (
-        <Typography variant="h3">{compositionName}</Typography>
+        <Typography variant="h4">{compositionName}</Typography>
       ) : (
         <TextField
           value={compositionName}

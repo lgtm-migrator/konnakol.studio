@@ -8,6 +8,7 @@ import {
   ListItemButton,
   ListItemIcon,
   ListItemText,
+  useTheme,
 } from "@mui/material";
 import { useStore } from "effector-react";
 import { $isSidebarOpen } from "~/features/editor/ui";
@@ -19,32 +20,23 @@ import { $units } from "~/features/editor/model/toolbar";
 const Sidebar = () => {
   const open = useStore($isSidebarOpen);
   const units = useStore($units);
+  const theme = useTheme();
 
   return (
     <aside className="editor__sidebar">
       <ul className="activity-bar">
         <ListItem>
-          <IconButton size="large">
+          <IconButton size="medium" color="secondary">
             <MusicNoteIcon />
           </IconButton>
         </ListItem>
         <ListItem>
-          <IconButton size="large">
-            <MusicNoteIcon />
-          </IconButton>
-        </ListItem>
-        <ListItem>
-          <IconButton size="large">
-            <MusicNoteIcon />
-          </IconButton>
-        </ListItem>
-        <ListItem>
-          <IconButton size="large">
+          <IconButton size="medium" color="primary">
             <MusicNoteIcon />
           </IconButton>
         </ListItem>
       </ul>
-      <div >
+      <div className="editor__widget">
         <div className="toolbar__units">
           {units.map((unit, i) => (
             <div className="toolbar__unit-button" key={i}>

@@ -3,6 +3,7 @@ import { useStore } from "effector-react";
 import Tact from "~/components/Tact";
 import { $composition, $konnakol } from "~/features/editor/model";
 import { konnakolChanged } from "~/features/editor/ui";
+import Title from "./Title";
 
 const Sheet = () => {
   const konnakol = useStore($konnakol);
@@ -10,6 +11,7 @@ const Sheet = () => {
 
   return (
     <section className="sheet">
+      <Title />
       <TextField
         multiline
         fullWidth
@@ -19,9 +21,11 @@ const Sheet = () => {
         placeholder="Your konnakol here..."
       />
 
-      {composition.map((tact, i) => (
-        <Tact key={i} units={tact.units} />
-      ))}
+      <div>
+        {composition.map((tact, i) => (
+          <Tact key={i} units={tact.units} />
+        ))}
+      </div>
     </section>
   );
 };

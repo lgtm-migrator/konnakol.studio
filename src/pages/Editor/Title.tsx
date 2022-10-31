@@ -1,21 +1,29 @@
 import EditIcon from "@mui/icons-material/Edit";
 import DoneIcon from "@mui/icons-material/Done";
-import { Typography, TextField, IconButton } from '@mui/material';
-import { useStore } from 'effector-react';
-import { $isCompositionNameEditing, $compositionName } from '~/features/editor/model';
-import { compositionNameChanged, editCompositionNameButtonClicked, saveCompositionNameButtonClicked } from '~/features/editor/ui';
+import { Typography, TextField, IconButton } from "@mui/material";
+import { useStore } from "effector-react";
+import {
+  $isCompositionNameEditing,
+  $compositionName,
+} from "~/features/editor/model";
+import {
+  compositionNameChanged,
+  editCompositionNameButtonClicked,
+  saveCompositionNameButtonClicked,
+} from "~/features/editor/ui";
 
-const Header = () => {
+const Title = () => {
   const isCompositionNameEditing = useStore($isCompositionNameEditing);
   const compositionName = useStore($compositionName);
 
   return (
-    <header className="editor__heading">
+    <header className="editor__title">
       {!isCompositionNameEditing ? (
         <Typography variant="h3">{compositionName}</Typography>
       ) : (
         <TextField
           value={compositionName}
+          variant="standard"
           onChange={({ target: { value } }) => compositionNameChanged(value)}
         />
       )}
@@ -38,4 +46,4 @@ const Header = () => {
   );
 };
 
-export default Header
+export default Title;

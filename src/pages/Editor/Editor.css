@@ -1,18 +1,11 @@
 .editor {
   display: grid;
   grid-template-areas:
-    "sidebar heading"
+    "appbar appbar"
+    "sidebar sheet"
     "sidebar sheet";
-  grid-template-columns: .3fr .7fr;
-  gap: 20px;
-  padding-bottom: 50px;
-  padding-right: 50px;
-}
-
-.editor__heading {
-  grid-area: heading;
-  display: flex;
-  align-items: center;
+  grid-template-columns: minmax(0, .3fr) .7fr;
+  height: 100%;
   column-gap: 20px;
 }
 
@@ -20,7 +13,19 @@
   grid-area: sidebar;
   display: grid;
   grid-template-columns: .2fr .8fr;
-  background-color: lightgrey;
+  min-height: 100vh;
+}
+
+.sidebar__widget {
+}
+
+.activity-bar {
+
+}
+
+.editor__appbar {
+  grid-area: appbar;
+  z-index: 1;
 }
 
 .toolbar__unit-button {
@@ -29,6 +34,7 @@
 
 .toolbar__units {
   display: grid;
+  align-items: center;
   padding-top: 8px;
   gap: 15px;
   grid-template-columns: repeat(3, 1fr);
@@ -38,12 +44,27 @@
 .sheet {
   grid-area: sheet;
   display: grid;
+  grid-template-columns: 1fr;
+  grid-template-rows: min-content;
   grid-auto-flow: row;
-  row-gap: 30px;
   max-width: 100%;
+  row-gap: 10px;
+  padding-top: 20px;
+  padding-right: 20px;
 }
 
 .sheet textarea {
   font-family: monospace;
   font-size: 25px;
+}
+
+.editor__title {
+  display: flex;
+  align-items: center;
+  column-gap: 20px;
+}
+
+.editor__widget {
+  padding: 10px;
+  background-color: rgb(249, 248, 248);
 }

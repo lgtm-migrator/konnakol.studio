@@ -2,12 +2,12 @@ import AddIcon from "@mui/icons-material/Add";
 import MusicNoteIcon from "@mui/icons-material/MusicNote";
 import { IconButton, Button, ListItem } from "@mui/material";
 import { useStore } from "effector-react";
-import { $widget, Widgets, widgetSelected } from "~/features/editor/ui";
-import { createUnitDialogOpened } from "~/features/editor/ui/create-unit-form";
-import { editUnitDialogOpened } from "~/features/editor/ui/edit-unit-form";
-import { $units } from "~/features/editor/model/toolbar";
+import { $widget, Widgets, widgetSelected } from "~/pages/editor/konnakol/ui";
 import Note from "~/components/Note";
 import classNames from "classnames";
+import { $units } from "../model";
+import * as createUnitDialog from "~/pages/editor/dialogs/unit/create/ui";
+import * as editUnitDialog from "~/pages/editor/dialogs/unit/edit/ui/shared";
 
 const Sidebar = () => {
   const widget = useStore($widget);
@@ -29,11 +29,6 @@ const Sidebar = () => {
             <MusicNoteIcon />
           </IconButton>
         </ListItem>
-        {/* <ListItem>
-          <IconButton size="medium" color="primary">
-            <MusicNoteIcon />
-          </IconButton>
-        </ListItem> */}
       </ul>
       {widget && (
         <div className="sidebar__widget">
@@ -42,7 +37,7 @@ const Sidebar = () => {
               <div className="toolbar__unit-button" key={i}>
                 <Button
                   variant="outlined"
-                  onClick={() => editUnitDialogOpened(i)}
+                  onClick={() => editUnitDialog.open(i)}
                 >
                   <Note symbol={symbol} />
                 </Button>
@@ -51,7 +46,7 @@ const Sidebar = () => {
             <div className="toolbar__unit-button">
               <IconButton
                 color="primary"
-                onClick={() => createUnitDialogOpened()}
+                onClick={() => createUnitDialog.open()}
               >
                 <AddIcon />
               </IconButton>

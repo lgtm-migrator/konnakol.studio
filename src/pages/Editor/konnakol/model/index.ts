@@ -1,9 +1,7 @@
 import { combine, createStore, sample } from 'effector';
 import { compositionNameChanged, editCompositionNameButtonClicked, konnakolChanged, saveCompositionNameButtonClicked } from '../ui';
 import parseKonnakol from './parser';
-import { $unitsAsMapping } from './toolbar';
-
-
+import { $unitsAsMapping } from '../../sidebar/model';
 
 export const $compositionName = createStore('');
 export const $konnakol = createStore('');

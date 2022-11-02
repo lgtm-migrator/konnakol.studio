@@ -1,6 +1,6 @@
 import { createStore, sample } from 'effector'
 import { SingleUnit } from '~/entities/unit/model/Unit'
-import { createUnitFx } from './create-unit'
+import { createUnitFx } from '~/entities/unit/api';
 
 export interface ShorcutsToUnits {
   [shortcut: string]: SingleUnit

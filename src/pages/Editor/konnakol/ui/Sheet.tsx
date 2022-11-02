@@ -1,9 +1,9 @@
 import { TextField } from "@mui/material";
 import { useStore } from "effector-react";
 import Tact from "~/components/Tact";
-import { $composition, $konnakol } from "~/features/editor/model";
-import { konnakolChanged } from "~/features/editor/ui";
-import Title from "./Title";
+import Title from "~/pages/editor/Title";
+import { konnakolChanged } from "~/pages/editor/konnakol/ui";
+import { $composition, $konnakol } from "~/pages/editor/konnakol/model";
 
 const Sheet = () => {
   const konnakol = useStore($konnakol);

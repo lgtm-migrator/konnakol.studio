@@ -4,7 +4,7 @@ import Chord from '~/entities/unit/model/Chord';
 import Note, { isNote } from '~/entities/unit/model/Note';
 import Roll from '~/entities/unit/model/Roll';
 import Unit from '~/entities/unit/model/Unit';
-import { ShorcutsToUnits } from './toolbar';
+import { ShorcutsToUnits } from '../../sidebar/model';
 
 const isChordSymbol = (symbol: string) => /^\((\S+\|?)+\)$/.test(symbol)
 const isRollSymbol = (symbol: string) => /^\[\S+,?\]$/.test(symbol)

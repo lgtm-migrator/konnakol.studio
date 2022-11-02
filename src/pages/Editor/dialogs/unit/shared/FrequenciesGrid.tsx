@@ -1,15 +1,15 @@
+import React from "react";
 import { Grid, TextField, InputAdornment, IconButton } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
 import MicIcon from "@mui/icons-material/Mic";
 import DoneIcon from "@mui/icons-material/Done";
 import AddIcon from "@mui/icons-material/Add";
-import React from "react";
-import { FrequencyIndex } from "~/features/editor/ui/shared";
+import { FrequencyIndex } from "~/shared/types";
 
 interface IFrequenciesGridProps {
-  frequencies: string[];
+  frequencies: Array<[string, { value: string; error: string }]>;
   pitchingFrequencyIndex: FrequencyIndex | null;
-  changeFrequency: (frequency: [FrequencyIndex, string]) => void;
+  updateFrequency: (frequency: [FrequencyIndex, string]) => void;
   removeFrequency: (index: FrequencyIndex) => void;
   pitchFrequency: (index: FrequencyIndex) => void;
   addFrequency: () => void;
@@ -17,7 +17,7 @@ interface IFrequenciesGridProps {
 
 const FrequenciesGrid: React.FC<IFrequenciesGridProps> = ({
   frequencies,
-  changeFrequency,
+  updateFrequency,
   removeFrequency,
   pitchFrequency,
   addFrequency,
@@ -25,16 +25,19 @@ const FrequenciesGrid: React.FC<IFrequenciesGridProps> = ({
 }) => {
   return (
     <Grid container spacing={2} alignItems="center">
-      {frequencies.map((freq, i) => (
-        <Grid item xs={3.5} key={i}>
+      {frequencies.map(([name, { value, error }], i) => (
+        <Grid item xs={3.5} key={name}>
           <TextField
             margin="dense"
             label="Frequency"
-            value={freq}
+            name={name}
+            value={value}
+            error={Boolean(error)}
+            helperText={error}
             type="number"
             fullWidth
             variant="standard"
-            onChange={({ target: { value } }) => changeFrequency([i, value])}
+            onChange={({ target: { value } }) => updateFrequency([i, value])}
             InputProps={{
               endAdornment: (
                 <InputAdornment position="end">

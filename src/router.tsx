@@ -1,6 +1,6 @@
 import { createBrowserRouter } from "react-router-dom";
 import Dojo from "./pages/Dojo/Dojo";
-import Editor from './pages/Editor/Editor';
+import Editor from './pages/editor/Editor';
 import Library from "./pages/Library/Library";
 
 const router = createBrowserRouter([

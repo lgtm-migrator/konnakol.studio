@@ -1,15 +1,21 @@
 import "./Editor.css";
 import { useParams } from "react-router-dom";
-import { AppBar, Button, IconButton, SpeedDial, SpeedDialAction, SpeedDialIcon, Toolbar, Typography } from "@mui/material";
-import AddUnitDialog from "./CreateUnitDialog";
-import EditUnitDialog from "./EditUnitDialog";
+import {
+  AppBar,
+  SpeedDial,
+  SpeedDialAction,
+  SpeedDialIcon,
+  Toolbar,
+  Typography,
+} from "@mui/material";
 import PlayIcon from "@mui/icons-material/PlayArrow";
 import SaveIcon from "@mui/icons-material/Save";
 import ShareIcon from "@mui/icons-material/Share";
 import MenuIcon from "@mui/icons-material/Menu";
-import Sheet from "./Sheet";
-import Title from "./Title";
-import Sidebar from "./Sidebar";
+import Sheet from "./konnakol/ui/Sheet";
+import Sidebar from "./sidebar/ui/Sidebar";
+import EditUnitDialog from './dialogs/unit/edit/ui';
+import CreateUnitDialog from './dialogs/unit/create/ui';
 
 const actions = [
   { icon: <PlayIcon />, name: "Play", onClick: () => {} },
@@ -31,7 +37,7 @@ function Editor() {
       </AppBar>
       <Sidebar />
       <Sheet />
-      <AddUnitDialog />
+      <CreateUnitDialog />
       <EditUnitDialog />
       <SpeedDial
         ariaLabel="SpeedDial basic example"

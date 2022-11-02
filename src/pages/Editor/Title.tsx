@@ -3,14 +3,11 @@ import DoneIcon from "@mui/icons-material/Done";
 import { Typography, TextField, IconButton } from "@mui/material";
 import { useStore } from "effector-react";
 import {
-  $isCompositionNameEditing,
-  $compositionName,
-} from "~/features/editor/model";
-import {
   compositionNameChanged,
   editCompositionNameButtonClicked,
   saveCompositionNameButtonClicked,
-} from "~/features/editor/ui";
+} from "~/pages/editor/konnakol/ui";
+import { $compositionName, $isCompositionNameEditing } from './konnakol/model';
 
 const Title = () => {
   const isCompositionNameEditing = useStore($isCompositionNameEditing);

@@ -23,7 +23,6 @@ export const detectPitchInBackgroundFx = createEffect(({
   pitcher
 }: DetectPitchInBackgroundFxParams) => {
   analyserAudioNode.getFloatTimeDomainData(buffer)
-  console.log({ freq: pitcher.detect(buffer) })
   return pitcher.detect(buffer)
 })
 

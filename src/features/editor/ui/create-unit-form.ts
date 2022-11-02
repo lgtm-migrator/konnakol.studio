@@ -60,5 +60,3 @@ sample({
   target: newUnitFrequencyChanged
 })
 
-$frequency.watch(frequency => console.log({ frequency }))
-

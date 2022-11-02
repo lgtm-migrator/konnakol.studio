@@ -15,8 +15,10 @@ import {
 } from "~/features/editor/model/edit-unit";
 import {
   $isEditUnitDialogOpened,
+  $pitchingFrequencyIndex,
   editableUnitFrequencyAdded,
   editableUnitFrequencyChanged,
+  editableUnitFrequencyPitched,
   editableUnitFrequencyRemoved,
   editableUnitSymbolChanged,
   editUnitButtonClicked,
@@ -27,6 +29,7 @@ import FrequenciesGrid from "./FrequenciesGrid";
 function EditUnitDialog() {
   const unit = useStore($editableUnit);
   const open = useStore($isEditUnitDialogOpened);
+  const pitchingFrequencyIndex = useStore($pitchingFrequencyIndex);
   const symbol = useStore($symbol);
   const frequencies = useStore($frequencies);
   const close = () => editUnitDialogClosed();
@@ -55,6 +58,8 @@ function EditUnitDialog() {
               addFrequency={editableUnitFrequencyAdded}
               changeFrequency={editableUnitFrequencyChanged}
               removeFrequency={editableUnitFrequencyRemoved}
+              pitchFrequency={editableUnitFrequencyPitched}
+              pitchingFrequencyIndex={pitchingFrequencyIndex}
             />
           </DialogContent>
           <DialogActions>

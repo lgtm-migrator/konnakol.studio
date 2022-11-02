@@ -54,6 +54,9 @@
 .sheet textarea {
   font-family: monospace;
   font-size: 25px;
+  white-space: pre;
+  overflow-wrap: normal;
+  overflow-x: scroll;
 }
 
 .editor__title {

@@ -1,18 +1,17 @@
 import { combine, createEffect, createEvent, createStore, sample, UnitValue } from 'effector';
 import { DEFAULT_BPM } from '~/constants';
-import { Pitcher, pitchers } from '~/features/dojo/api/pitcher';
 import { isRepeatingCheckboxChanged, listenButtonClicked, pitcherUpdated, playButtonClicked, promptBPMFx, stopButtonClicked } from '~/features/dojo/ui';
 import Composition, { CompositionId, ICompositionState } from '~/entities/composition/model';
 import * as validation from '~/features/dojo/ui/validation';
-import { $webAudio, detectPitchInBackgroundFx, DetectPitchInBackgroundFxParams, initializeWebAudioApiFx } from '../api';
-import { and, delay, interval, reset } from 'patronum';
+import { $frequency, $pitcher, $webAudio, DetectPitchInBackgroundFxParams, initializeWebAudioApiFx } from '~/shared/pitch';
+import { and, delay, reset } from 'patronum';
 import { $score, Correctness, ScoreSource, ScoreString, updateScore } from './score';
 import { NonNullableStructure } from '~/utils/types.utils';
 import Tact from '~/entities/composition/model/Tact';
 import { bpmToMilliseconds } from '~/utils/tempo.utils';
 import { SingleUnit } from '~/entities/unit/model/Unit';
-import { Frequency } from '~/types/fraction.types';
 import { loadComposition } from '../api/compositions';
+import { pitchers } from '~/shared/pitch/shared';
 
 interface RepeatCompositionSource {
   composition: Composition | null
@@ -62,8 +61,7 @@ export const stopCompositionFx = createEffect(
 export const $bpm = createStore(DEFAULT_BPM)
 export const $composition = createStore<Composition | null>(null)
 export const $compositionState = createStore<ICompositionState | null>(null)
-export const $frequency = createStore<Frequency>(0)
-export const $pitcher = createStore<Pitcher>(pitchers.ACF2PLUS)
+
 export const $isRepeating = createStore(false)
 export const $loopIndex = createStore(0);
 export const $isListening = $webAudio.map(Boolean)
@@ -180,27 +178,6 @@ sample({
   source: $composition,
   filter: Boolean,
   target: stopCompositionFx
-})
-
-const { tick } = interval({
-  start: listenButtonClicked,
-  timeout: 1000 / 60,
-  leading: true
-})
-
-sample({
-  clock: tick,
-  source: { webAudio: $webAudio, pitcher: $pitcher },
-  filter: (params): params is DetectPitchInBackgroundFxParams => Boolean(params.webAudio),
-  fn: (params: DetectPitchInBackgroundFxParams) => params,
-  target: detectPitchInBackgroundFx
-})
-
-sample({
-  clock: detectPitchInBackgroundFx.doneData,
-  filter: (frequency): frequency is Frequency => !!frequency,
-  fn: (frequency: Frequency) => frequency,
-  target: $frequency
 })
 
 sample({

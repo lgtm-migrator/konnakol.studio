@@ -1,4 +1,4 @@
-import { PitcherName, pitchers } from '~/features/dojo/api/pitcher'
+import { PitcherName, pitchers } from '~/shared/pitch/shared'
 
 export const bpm = (value: ReturnType<typeof prompt>) => {
   if (!value) {

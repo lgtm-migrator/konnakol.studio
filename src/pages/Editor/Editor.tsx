@@ -24,19 +24,9 @@ function Editor() {
     <main className="editor">
       <AppBar position="static" className="editor__appbar">
         <Toolbar>
-          <IconButton
-            size="large"
-            edge="start"
-            color="inherit"
-            aria-label="menu"
-            sx={{ mr: 2 }}
-          >
-            <MenuIcon />
-          </IconButton>
           <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-            News
+            Editor
           </Typography>
-          <Button color="inherit">Login</Button>
         </Toolbar>
       </AppBar>
       <Sidebar />
@@ -45,7 +35,7 @@ function Editor() {
       <EditUnitDialog />
       <SpeedDial
         ariaLabel="SpeedDial basic example"
-        sx={{ position: "absolute", bottom: 16, right: 16 }}
+        sx={{ position: "fixed", bottom: 16, right: 16 }}
         icon={<SpeedDialIcon />}
       >
         {actions.map((action) => (

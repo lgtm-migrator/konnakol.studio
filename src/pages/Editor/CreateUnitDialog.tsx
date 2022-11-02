@@ -9,16 +9,16 @@ import {
 } from "@mui/material";
 
 import { useStore } from "effector-react";
-import {
-  $newUnitFrequencies,
-} from "~/features/editor/model/create-unit";
+import { $newUnitFrequencies } from "~/features/editor/model/create-unit";
 import {
   $isCreateUnitDialogOpened,
+  $pitchingFrequencyIndex,
   addUnitFrequencyButtonClicked,
   createUnitButtonClicked,
   createUnitDialogClosed,
   newUnitFrequencyChanged,
   newUnitSymbolChanged,
+  pitchUnitFrequencyButtonClicked,
   removeUnitFrequencyButtonClicked,
 } from "~/features/editor/ui/create-unit-form";
 import FrequenciesGrid from "./FrequenciesGrid";
@@ -26,7 +26,8 @@ import FrequenciesGrid from "./FrequenciesGrid";
 // TODO: add validation for a symbol/shortcut
 
 function CreateUnitDialog() {
-  const frequencies = useStore($newUnitFrequencies)
+  const frequencies = useStore($newUnitFrequencies);
+  const pitchingFrequencyIndex = useStore($pitchingFrequencyIndex);
   const open = useStore($isCreateUnitDialogOpened);
   const close = () => createUnitDialogClosed();
   const create = () => createUnitButtonClicked();
@@ -41,19 +42,21 @@ function CreateUnitDialog() {
           Note, Chord and Roll.
         </DialogContentText>
         <TextField
-            fullWidth
-            margin="dense"
-            label="Symbol"
-            type="text"
-            variant="standard"
-            onChange={({ target: { value } }) => newUnitSymbolChanged(value)}
-          />
-          <FrequenciesGrid
-            frequencies={frequencies}
-            addFrequency={addUnitFrequencyButtonClicked}
-            changeFrequency={newUnitFrequencyChanged}
-            removeFrequency={removeUnitFrequencyButtonClicked}
-          />
+          fullWidth
+          margin="dense"
+          label="Symbol"
+          type="text"
+          variant="standard"
+          onChange={({ target: { value } }) => newUnitSymbolChanged(value)}
+        />
+        <FrequenciesGrid
+          frequencies={frequencies}
+          addFrequency={addUnitFrequencyButtonClicked}
+          changeFrequency={newUnitFrequencyChanged}
+          removeFrequency={removeUnitFrequencyButtonClicked}
+          pitchFrequency={pitchUnitFrequencyButtonClicked}
+          pitchingFrequencyIndex={pitchingFrequencyIndex}
+        />
       </DialogContent>
       <DialogActions>
         <Button onClick={close}>Cancel</Button>

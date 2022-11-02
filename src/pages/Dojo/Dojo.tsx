@@ -10,12 +10,9 @@ import {
   playButtonClicked,
   stopButtonClicked,
 } from "~/features/dojo/ui";
-import { pitchers } from "~/features/dojo/api/pitcher";
 import {
   $bpm,
   $composition,
-  $frequency,
-  $pitcher,
   $isListening,
   $isPlaying,
   $isRepeating,
@@ -25,6 +22,8 @@ import {
 import { useStore } from "effector-react";
 import { $failed, $success } from "~/features/dojo/model/score";
 import { useParams } from "react-router-dom";
+import { pitchers } from '~/shared/pitch/shared';
+import { $frequency, $pitcher } from '~/shared/pitch';
 
 function Dojo() {
   const composition = useStore($composition);

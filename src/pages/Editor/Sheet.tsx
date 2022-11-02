@@ -18,7 +18,6 @@ const Sheet = () => {
         value={konnakol}
         onChange={({ target: { value } }) => konnakolChanged(value)}
         minRows={5}
-        
         placeholder="Your konnakol here..."
       />
       <div>

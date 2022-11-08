@@ -1,4 +1,4 @@
-import { Field, FormStore, FormValues, Validator, Value } from './types'
+import { Field, FormStore, Validator, Value } from './types'
 
 export const anyString = () => ''
 export const numerical = (value: Value) => /\d/g.test(value) ? '' : 'Must be a number'
@@ -11,10 +11,13 @@ export default function validate<F extends Field>(
 
   for (const key in values) {
     const value = values?.[key]
+    const validator = schema?.[key]
 
-    if (value) {
-      const error = schema?.[key]?.(value) ?? ''
+    if (value !== undefined) {
+      const error = validator?.(value) ?? ''
       validatedValues[key] = { error, value }
+    } else {
+      validatedValues[key] = undefined
     }
   }
 

@@ -45,13 +45,11 @@ export function instantiateUnitForm() {
 
   sample({
     clock: frequencies.remove,
-    source: form.$store,
-    fn: (form, index) => map(
-      filter(form, (key) => !key.startsWith(makeFrequencyKey(index))),
-      (_, { value }) => value
-    ),
+    fn: (index) => ({ [makeFrequencyKey(index)]: undefined }),
     target: form.update
   })
+
+  form.update.watch(console.log)
 
   sample({
     clock: frequencies.pitch,

@@ -16,10 +16,8 @@ export const map = <F extends FormStore>(
 
 export const filter = <F extends FormStore>(
   form: F,
-  predicate: Predicate<keyof F, FormEntry>
+  predicate: Predicate<keyof F, F[keyof F]>
 ) => Object.fromEntries(
   Object.entries(form)
-    .filter(([key, value]) => predicate(key, value))
+    .filter(([key, value]) => predicate(key, value as F[keyof F]))
 ) as F
-
-[].filter

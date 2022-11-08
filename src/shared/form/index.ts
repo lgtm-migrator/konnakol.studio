@@ -1,5 +1,6 @@
 import { createEvent, createStore } from 'effector';
 import { Field, Validator, FormStore, FormValues } from './types';
+import { filter } from './utils';
 import validate from './validators';
 
 export function createForm<F extends Field = Field>(
@@ -15,10 +16,13 @@ export function createForm<F extends Field = Field>(
   )
 
   $store.on(update, (form, updates) => {
-    return {
-      ...form,
-      ...validate(updates, schema)
-    }
+    return filter(
+      {
+        ...form,
+        ...validate(updates, schema)
+      },
+      (_, entry) => entry !== undefined
+    )
   })
 
   return {

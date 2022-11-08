@@ -8,23 +8,16 @@ import {
   DialogActions,
   Button,
 } from "@mui/material";
-import { useStore } from "effector-react";
-import { $pitchingFrequencyIndex } from "../model";
-import { $store as $form, update, $frequencies } from "./form";
-import {
-  add as addFrequency,
-  update as updateFrequency,
-  remove as removeFrequency,
-  pitch as pitchFrequency,
-} from "./frequencies";
-import FrequenciesGrid from "../../shared/FrequenciesGrid";
-import { $isOpen, save } from "./shared";
+import { useStore, useStoreMap } from "effector-react";
+import FrequenciesGrid from "~/pages/editor/dialogs/unit/shared/FrequenciesGrid";
+
+import { form, popup, saved } from "../model";
 
 function EditUnitDialog() {
-  const isOpen = useStore($isOpen);
-  const pitchingFrequencyIndex = useStore($pitchingFrequencyIndex);
-  const form = useStore($form);
-  const frequencies = useStore($frequencies);
+  const isOpen = useStore(popup.$isOpen);
+  const pitchingFrequencyIndex = useStore(form.frequencies.$listening);
+  const frequencies = useStore(form.frequencies.$store);
+  const symbol = useStoreMap(form.$store, (f) => f.symbol);
 
   return (
     <>
@@ -39,22 +32,24 @@ function EditUnitDialog() {
               label="Symbol"
               type="text"
               variant="standard"
-              value={form.symbol.value}
+              value={symbol.value}
               name="symbol"
-              onChange={({ target: { value } }) => update({ symbol: value })}
+              onChange={({ target: { value } }) =>
+                form.update({ symbol: value })
+              }
             />
             <FrequenciesGrid
               frequencies={frequencies}
-              addFrequency={addFrequency}
-              updateFrequency={updateFrequency}
-              removeFrequency={removeFrequency}
-              pitchFrequency={pitchFrequency}
+              addFrequency={form.frequencies.add}
+              updateFrequency={form.frequencies.update}
+              removeFrequency={form.frequencies.remove}
+              pitchFrequency={form.frequencies.pitch}
               pitchingFrequencyIndex={pitchingFrequencyIndex}
             />
           </DialogContent>
           <DialogActions>
-            <Button onClick={() => close()}>Cancel</Button>
-            <Button onClick={() => save()}>Save</Button>
+            <Button onClick={() => popup.close()}>Cancel</Button>
+            <Button onClick={() => saved()}>Save</Button>
           </DialogActions>
         </Dialog>
       }

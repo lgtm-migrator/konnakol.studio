@@ -1,11 +1,34 @@
-import { createStore } from 'effector';
-import { FrequencyIndex } from '~/shared/types';
-import { pitch } from '../ui/frequencies';
+import { createEvent, sample } from 'effector';
+import { instantiatePopup } from "~/pages/editor/dialogs/unit/shared/popup";
+import { instantiateUnitForm } from "~/pages/editor/dialogs/unit/shared/form";
+import { $units } from '~/pages/editor/sidebar/model';
+import Note from '~/entities/unit/model/Note';
+import { reset } from 'patronum';
 
-export const $pitchingFrequencyIndex = createStore<FrequencyIndex | null>(null)
+export const created = createEvent()
 
-$pitchingFrequencyIndex
-  .on(pitch, (prev, index) => prev === index ? null : index)
+export const popup = instantiatePopup();
+export const form = instantiateUnitForm();
 
+sample({
+  clock: created,
+  source: { units: $units, form: form.$store, frequencies: form.frequencies.$store },
+  fn: ({ units, form, frequencies }) => ([
+    ...units,
+    new Note({
+      symbol: form.symbol.value,
+      frequencies: frequencies.map(([_, { value }]) => Number(value)),
+    })
+  ]),
+  target: $units
+})
 
+sample({
+  clock: created,
+  target: popup.close
+})
 
+reset({
+  clock: popup.close,
+  target: [form.$store]
+})

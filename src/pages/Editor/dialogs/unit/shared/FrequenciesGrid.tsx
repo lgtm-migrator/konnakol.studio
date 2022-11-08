@@ -17,11 +17,11 @@ interface IFrequenciesGridProps {
 
 const FrequenciesGrid: React.FC<IFrequenciesGridProps> = ({
   frequencies,
+  pitchingFrequencyIndex,
   updateFrequency,
   removeFrequency,
   pitchFrequency,
   addFrequency,
-  pitchingFrequencyIndex,
 }) => {
   return (
     <Grid container spacing={2} alignItems="center">

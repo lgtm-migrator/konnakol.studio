@@ -58,8 +58,8 @@ export function instantiateUnitForm() {
   sample({
     clock: frequencies.remove,
     source: form.$store,
-    fn: (form, name) => values(reorderFrequencies(filter(form, (key) => key !== name))),
-    target: form.set
+    fn: (form, name) => reorderFrequencies(filter(form, (key) => key !== name)),
+    target: form.$store
   })
 
   sample({

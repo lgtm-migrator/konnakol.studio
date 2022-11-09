@@ -9,7 +9,6 @@ export function createForm<F extends Field = Field>(
   type Updates = FormValues<Form<F>>
 
   const update = createEvent<Partial<Updates>>()
-  const set = createEvent<Updates>()
 
   const $store = createStore<Form<F>>(
     Object.fromEntries(
@@ -18,12 +17,10 @@ export function createForm<F extends Field = Field>(
   )
 
   $store
-    .on(set, (_, updates) => validate(updates, schema))
     .on(update, (prev, updates) => validate({ ...values(prev), ...updates }, schema))
 
   return {
     $store,
     update,
-    set
   }
 }

@@ -1,5 +1,5 @@
 import { createEffect, createEvent, createStore, sample } from 'effector';
-import { interval } from 'patronum';
+import { interval, not } from 'patronum';
 import { Frequency } from '~/types/fraction.types';
 import { Pitcher, pitchers } from './shared';
 import { initializeWebAudioApi, IWebAudioAPI } from './web-audio';
@@ -9,21 +9,27 @@ export interface DetectPitchInBackgroundFxParams {
   pitcher: Pitcher;
 }
 
-export const $pitcher = createStore<Pitcher>(pitchers.ACF2PLUS)
-export const $frequency = createStore<Frequency>(0)
-export const $webAudio = createStore<IWebAudioAPI | null>(null)
 export const initializeWebAudioApiFx = createEffect(initializeWebAudioApi)
-
-export const requestWebAudioAPI = createEvent()
-export const startListeningMicro = createEvent()
-export const stopListeningMicro = createEvent()
-
 export const detectPitchInBackgroundFx = createEffect(({
   webAudio: { analyserAudioNode, buffer },
   pitcher
 }: DetectPitchInBackgroundFxParams) => {
   analyserAudioNode.getFloatTimeDomainData(buffer)
   return pitcher.detect(buffer)
+})
+
+export const $pitcher = createStore<Pitcher>(pitchers.ACF2PLUS)
+export const $frequency = createStore<Frequency>(0)
+export const $webAudio = createStore<IWebAudioAPI | null>(null)
+
+export const requestWebAudioAPI = createEvent()
+export const startListeningMicro = createEvent()
+export const stopListeningMicro = createEvent()
+
+sample({
+  clock: startListeningMicro,
+  filter: not($webAudio),
+  target: initializeWebAudioApiFx
 })
 
 sample({

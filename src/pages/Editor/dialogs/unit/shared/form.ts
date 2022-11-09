@@ -1,9 +1,10 @@
 import { createEvent, createStore, sample } from 'effector';
-import Unit, { WithFrequencies } from '~/entities/unit/model/Unit';
+import { condition, empty, not } from 'patronum';
 import { createForm } from '~/shared/form';
-import { FormEntry } from '~/shared/form/types';
-import { filter, map } from '~/shared/form/utils';
+import { Form } from '~/shared/form/types';
+import { filter, values } from '~/shared/form/utils';
 import { anyString, numerical } from '~/shared/form/validators';
+import { $frequency, startListeningMicro, stopListeningMicro } from '~/shared/pitch';
 import { FrequencyIndex } from '~/shared/types';
 import { Frequency } from '~/types/fraction.types';
 
@@ -11,7 +12,18 @@ type FrequencyKey = `frequency${FrequencyIndex}`
 type FlatFrequencies = Record<FrequencyKey, Frequency>
 type UnitFormField = 'symbol' | FrequencyKey
 
-export const makeFrequencyKey = (index: FrequencyIndex): FrequencyKey => `frequency${index}`
+const makeFrequencyKey = (index: FrequencyIndex): FrequencyKey => `frequency${index}`
+
+const reorderFrequencies = (
+  form: Form<UnitFormField>
+) => {
+  const reordered = Object
+    .entries(form)
+    .sort()
+    .map(([key, entry], index) => key.startsWith('frequency') ? [makeFrequencyKey(index), entry] : [key, entry])
+
+  return Object.fromEntries(reordered) as Form<UnitFormField>
+}
 
 export function instantiateUnitForm() {
   const form = createForm<UnitFormField>({
@@ -23,11 +35,11 @@ export function instantiateUnitForm() {
     $store: form.$store.map(form => Object.entries(form)
       .filter(([key]) => key.startsWith('frequency'))
     ),
-    $listening: createStore<FrequencyIndex | null>(null),
+    $listening: createStore<string | null>(null),
     add: createEvent(),
-    update: createEvent<[FrequencyIndex, string]>(),
-    remove: createEvent<FrequencyIndex>(),
-    pitch: createEvent<FrequencyIndex>()
+    update: createEvent<[string, string]>(),
+    remove: createEvent<string>(),
+    pitch: createEvent<string>()
   }
 
   sample({
@@ -39,23 +51,37 @@ export function instantiateUnitForm() {
 
   sample({
     clock: frequencies.update,
-    fn: ([index, value]) => ({ [makeFrequencyKey(index)]: value }),
+    fn: ([name, value]) => ({ [name]: value }),
     target: form.update
   })
 
   sample({
     clock: frequencies.remove,
-    fn: (index) => ({ [makeFrequencyKey(index)]: undefined }),
-    target: form.update
+    source: form.$store,
+    fn: (form, name) => values(reorderFrequencies(filter(form, (key) => key !== name))),
+    target: form.set
   })
-
-  form.update.watch(console.log)
 
   sample({
     clock: frequencies.pitch,
     source: frequencies.$listening,
     fn: (prevIndex, newIndex) => prevIndex === newIndex ? null : newIndex,
     target: frequencies.$listening
+  })
+
+  condition({
+    source: frequencies.$listening,
+    if: not(empty(frequencies.$listening)),
+    then: startListeningMicro,
+    else: stopListeningMicro
+  })
+
+  sample({
+    clock: $frequency,
+    source: frequencies.$listening,
+    filter: (name: string | null): name is string => name !== null,
+    fn: (name, frequency) => [name, frequency.toString()] as const,
+    target: frequencies.update
   })
 
   return {

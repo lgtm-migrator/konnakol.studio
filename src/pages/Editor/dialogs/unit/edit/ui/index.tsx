@@ -15,7 +15,7 @@ import { form, popup, saved } from "../model";
 
 function EditUnitDialog() {
   const isOpen = useStore(popup.$isOpen);
-  const pitchingFrequencyIndex = useStore(form.frequencies.$listening);
+  const pitching = useStore(form.frequencies.$listening);
   const frequencies = useStore(form.frequencies.$store);
   const symbol = useStoreMap(form.$store, (f) => f.symbol);
 
@@ -44,7 +44,7 @@ function EditUnitDialog() {
               updateFrequency={form.frequencies.update}
               removeFrequency={form.frequencies.remove}
               pitchFrequency={form.frequencies.pitch}
-              pitchingFrequencyIndex={pitchingFrequencyIndex}
+              pitching={pitching}
             />
           </DialogContent>
           <DialogActions>

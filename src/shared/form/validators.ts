@@ -1,25 +1,21 @@
-import { Field, FormStore, Validator, Value } from './types'
+import { Field, Form, FormEntry, Validator, Value } from './types'
 
 export const anyString = () => ''
 export const numerical = (value: Value) => /\d/g.test(value) ? '' : 'Must be a number'
 
 export default function validate<F extends Field>(
-  values: Partial<Record<F, string>>,
+  values: Record<F, string>,
   schema: Record<F, Validator>
 ) {
-  const validatedValues: Partial<FormStore<F>> = {}
+  const validated = Object
+    .entries<string>(values)
+    .map<[F, FormEntry]>(([key, value]) => {
+      const field = key as F
+      const validator = schema[field]
+      const error = value && validator ? validator(value) : ''
 
-  for (const key in values) {
-    const value = values?.[key]
-    const validator = schema?.[key]
+      return [field, { value, error }]
+    })
 
-    if (value !== undefined) {
-      const error = validator?.(value) ?? ''
-      validatedValues[key] = { error, value }
-    } else {
-      validatedValues[key] = undefined
-    }
-  }
-
-  return validatedValues
+  return Object.fromEntries(validated) as Form<F>
 }

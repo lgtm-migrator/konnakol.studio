@@ -8,16 +8,16 @@ import { FrequencyIndex } from "~/shared/types";
 
 interface IFrequenciesGridProps {
   frequencies: Array<[string, { value: string; error: string }]>;
-  pitchingFrequencyIndex: FrequencyIndex | null;
-  updateFrequency: (frequency: [FrequencyIndex, string]) => void;
-  removeFrequency: (index: FrequencyIndex) => void;
-  pitchFrequency: (index: FrequencyIndex) => void;
+  pitching: string | null;
+  updateFrequency: (frequency: [string, string]) => void;
+  removeFrequency: (name: string) => void;
+  pitchFrequency: (name: string) => void;
   addFrequency: () => void;
 }
 
 const FrequenciesGrid: React.FC<IFrequenciesGridProps> = ({
   frequencies,
-  pitchingFrequencyIndex,
+  pitching,
   updateFrequency,
   removeFrequency,
   pitchFrequency,
@@ -37,17 +37,17 @@ const FrequenciesGrid: React.FC<IFrequenciesGridProps> = ({
             type="number"
             fullWidth
             variant="standard"
-            onChange={({ target: { value } }) => updateFrequency([i, value])}
+            onChange={({ target: { value } }) => updateFrequency([name, value])}
             InputProps={{
               endAdornment: (
                 <InputAdornment position="end">
                   <Grid container spacing={2}>
                     <Grid item xs={6}>
-                      {pitchingFrequencyIndex === i ? (
+                      {pitching === name ? (
                         <IconButton
                           size="small"
                           color="success"
-                          onClick={() => pitchFrequency(i)}
+                          onClick={() => pitchFrequency(name)}
                           edge="end"
                         >
                           <DoneIcon />
@@ -56,7 +56,7 @@ const FrequenciesGrid: React.FC<IFrequenciesGridProps> = ({
                         <IconButton
                           size="small"
                           color="secondary"
-                          onClick={() => pitchFrequency(i)}
+                          onClick={() => pitchFrequency(name)}
                           edge="end"
                         >
                           <MicIcon />
@@ -67,7 +67,7 @@ const FrequenciesGrid: React.FC<IFrequenciesGridProps> = ({
                       <IconButton
                         size="small"
                         color="error"
-                        onClick={() => removeFrequency(i)}
+                        onClick={() => removeFrequency(name)}
                         edge="end"
                       >
                         <DeleteIcon />

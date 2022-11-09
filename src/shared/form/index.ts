@@ -1,32 +1,29 @@
 import { createEvent, createStore } from 'effector';
-import { Field, Validator, FormStore, FormValues } from './types';
-import { filter } from './utils';
+import { Field, Validator, Form, FormValues } from './types';
+import { values } from './utils';
 import validate from './validators';
 
 export function createForm<F extends Field = Field>(
   schema: Record<F, Validator>
 ) {
-  type Updates = Partial<FormValues<F>>
+  type Updates = FormValues<Form<F>>
 
-  const update = createEvent<Updates>()
-  const $store = createStore<FormStore<F>>(
+  const update = createEvent<Partial<Updates>>()
+  const set = createEvent<Updates>()
+
+  const $store = createStore<Form<F>>(
     Object.fromEntries(
       Object.entries(schema).map(([field]) => [field, { value: '', error: '' }])
-    ) as FormStore<F>
+    ) as Form<F>
   )
 
-  $store.on(update, (form, updates) => {
-    return filter(
-      {
-        ...form,
-        ...validate(updates, schema)
-      },
-      (_, entry) => entry !== undefined
-    )
-  })
+  $store
+    .on(set, (_, updates) => validate(updates, schema))
+    .on(update, (prev, updates) => validate({ ...values(prev), ...updates }, schema))
 
   return {
     $store,
     update,
+    set
   }
 }
